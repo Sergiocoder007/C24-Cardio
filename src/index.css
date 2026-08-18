@@ -1,0 +1,55 @@
+:root {
+  --bg-deep: #070707;
+  --bg-charcoal: #111111;
+  --bg-panel: #161616;
+  --line: rgba(201, 162, 39, 0.28);
+  --gold: #c9a227;
+  --gold-bright: #e8c547;
+  --crimson: #8b1e1e;
+  --text: #f3efe4;
+  --muted: #9a9486;
+  --display: Impact, Haettenschweiler, 'Arial Narrow Bold', 'Franklin Gothic Medium', sans-serif;
+  --body: 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--body);
+}
+
+body {
+  min-height: 100dvh;
+  min-height: 100svh;
+}
+
+button {
+  font: inherit;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

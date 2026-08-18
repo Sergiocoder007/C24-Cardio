@@ -1,0 +1,359 @@
+.fight {
+  min-height: 100dvh;
+  background: #050505;
+  color: var(--text);
+  overflow: hidden;
+}
+
+.fight-frame {
+  width: min(100%, 480px);
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding:
+    max(14px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(18px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.fight-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.fight-brand {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--display);
+  font-size: 0.78rem;
+  letter-spacing: 0.42em;
+}
+
+.sound-toggle {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--display);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+}
+
+.sound-toggle.is-on {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.sound-toggle:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+.reveal-stage {
+  position: relative;
+  width: 100%;
+  height: min(52vh, 440px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #000;
+}
+
+.reveal-void {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(201, 162, 39, 0.08), transparent 42%),
+    linear-gradient(180deg, #120f0a 0%, #050505 48%, #000 100%);
+}
+
+.reveal-void::after {
+  content: '';
+  position: absolute;
+  inset: 18% 28%;
+  border-radius: 50% 50% 42% 42%;
+  background: rgba(255, 255, 255, 0.03);
+  filter: blur(18px);
+}
+
+.reveal-uncover {
+  position: absolute;
+  inset: 0;
+}
+
+.reveal-live-paint {
+  position: absolute;
+  inset: 0;
+}
+
+.reveal-live-paint img {
+  filter: contrast(1.38) saturate(0.74) sepia(0.14) brightness(0.86);
+}
+
+.reveal-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+
+.reveal-meter {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  z-index: 2;
+  margin: 0;
+  color: var(--gold);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  font-weight: 700;
+}
+
+.fight-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.reveal-scan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+  box-shadow: 0 0 18px var(--gold);
+}
+
+.fight-mode {
+  margin: 16px 0 0;
+  font-family: var(--display);
+  font-size: 1.1rem;
+  letter-spacing: 0.4em;
+}
+
+.mode-work {
+  color: var(--gold-bright);
+}
+
+.mode-rest {
+  color: #9ab0c9;
+}
+
+.mode-intro,
+.mode-announce {
+  color: var(--gold);
+}
+
+.fight-clock {
+  margin: 4px 0 0;
+  font-family: var(--display);
+  font-size: clamp(4.4rem, 26vw, 8.2rem);
+  line-height: 0.88;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 28px rgba(201, 162, 39, 0.22);
+}
+
+.fight-clock.is-callout {
+  animation: punch 0.45s ease;
+}
+
+.fight-round {
+  margin: 10px 0 0;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  letter-spacing: 0.22em;
+}
+
+.fight-name {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+}
+
+.fight-controls {
+  width: 100%;
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+  padding-top: 20px;
+}
+
+.fight-primary,
+.fight-ghost {
+  width: 100%;
+  min-height: 54px;
+  font-family: var(--display);
+  letter-spacing: 0.18em;
+  cursor: pointer;
+}
+
+.fight-primary {
+  border: 0;
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 55%, #9a7a18 100%);
+  color: #140f05;
+  font-size: 1.15rem;
+}
+
+.fight-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.fight-primary:focus-visible,
+.fight-ghost:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
+
+.fight.is-paused .fight-clock {
+  opacity: 0.7;
+}
+
+.phase-work {
+  background:
+    radial-gradient(90% 50% at 50% 0%, rgba(201, 162, 39, 0.16), transparent 50%),
+    #050505;
+}
+
+.phase-rest {
+  background:
+    radial-gradient(90% 50% at 50% 0%, rgba(90, 120, 160, 0.16), transparent 50%),
+    #050505;
+}
+
+.phase-intro,
+.phase-announce {
+  background:
+    radial-gradient(90% 55% at 50% 10%, rgba(201, 162, 39, 0.22), transparent 55%),
+    #050505;
+}
+
+.fight-modal,
+.fight-finish {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.72);
+  z-index: 5;
+}
+
+.finish-card {
+  width: 100%;
+  margin-top: auto;
+  padding: 18px 14px 8px;
+  border: 1px solid var(--line);
+  background: rgba(16, 16, 16, 0.92);
+}
+
+.fight-dialog {
+  width: min(100%, 400px);
+  padding: 24px 18px;
+  border: 1px solid var(--line);
+  background: #101010;
+}
+
+.dialog-title,
+.finish-title {
+  margin: 0;
+  font-family: var(--display);
+  letter-spacing: 0.12em;
+}
+
+.dialog-title {
+  font-size: 1.6rem;
+}
+
+.finish-title {
+  font-size: 2rem;
+  line-height: 0.95;
+}
+
+.dialog-copy,
+.finish-message {
+  margin: 10px 0 18px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.fight-dialog .fight-ghost,
+.fight-dialog .fight-primary {
+  margin-top: 8px;
+}
+
+.finish-kicker {
+  margin: 0 0 8px;
+  color: var(--gold);
+  letter-spacing: 0.32em;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.finish-title-lead {
+  width: 100%;
+  margin: 4px 0 12px;
+  font-size: clamp(1.8rem, 8vw, 2.4rem);
+  color: var(--gold-bright);
+  text-align: center;
+}
+
+.finish-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.finish-stats div {
+  padding: 10px;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.finish-stats span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+}
+
+.finish-stats strong {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--display);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+}
+
+.finish-sub {
+  margin: 0 0 18px;
+  color: var(--gold);
+  font-family: var(--display);
+  letter-spacing: 0.16em;
+}
+
+@keyframes punch {
+  from {
+    transform: scale(0.86);
+    opacity: 0.35;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
