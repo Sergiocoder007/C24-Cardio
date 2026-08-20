@@ -18,6 +18,11 @@ function App() {
   const [selectedFighter, setSelectedFighter] = useState(null)
   const [soundOn, setSoundOn] = useState(true)
 
+  if (typeof window !== 'undefined' && /^\/privacy-policy\/?$/.test(window.location.pathname)) {
+    window.location.replace('/privacy-policy/index.html')
+    return null
+  }
+
   function resetSetup() {
     setRounds(DEFAULT_SETUP.rounds)
     setRoundsCustom(DEFAULT_SETUP.roundsCustom)

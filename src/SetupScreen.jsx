@@ -312,6 +312,9 @@ export function SetupScreen({
         >
           START WORKOUT
         </button>
+        <footer className="site-footer">
+          <a href="/privacy-policy/">Privacy Policy</a>
+        </footer>
       </div>
     </main>
   )
