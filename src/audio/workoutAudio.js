@@ -2,6 +2,23 @@ import { MASTER_GAIN_CAP, SAMPLE_RATE, SOUND_BANK, SOUND_IDS, SOUND_LEVELS, SOUN
 import warningToneUrl from '../assets/warning-10s.wav?url'
 import { generateWarningToneSamples, WARNING_TONE_SAMPLE_RATE } from './warningToneAsset.js'
 
+function logAudioError(action, error) {
+  if (import.meta.env.DEV) console.warn(`[c24-audio] ${action} failed`, error)
+}
+
+function setPlaybackAudioSession() {
+  try {
+    const session = navigator.audioSession
+    if (session && session.type !== 'playback') session.type = 'playback'
+  } catch (error) {
+    logAudioError('audioSession', error)
+  }
+}
+
+function contextNeedsResume(ctx) {
+  return ctx.state === 'suspended' || ctx.state === 'interrupted'
+}
+
 function createContext() {
   const Ctor = window.AudioContext || window.webkitAudioContext
   if (!Ctor) return null
@@ -44,19 +61,35 @@ class WorkoutAudio {
     this.master.connect(this.ctx.destination)
   }
 
+  resumeContext() {
+    if (!this.ctx || !contextNeedsResume(this.ctx)) return Promise.resolve(true)
+    let resumePromise
+    try {
+      resumePromise = this.ctx.resume()
+    } catch (error) {
+      logAudioError('resume', error)
+      return Promise.resolve(false)
+    }
+    return Promise.resolve(resumePromise)
+      .then(() => !contextNeedsResume(this.ctx))
+      .catch((error) => {
+        logAudioError('resume', error)
+        return false
+      })
+  }
+
   async unlock() {
+    setPlaybackAudioSession()
     if (!this.ctx) {
       this.ctx = createContext()
       if (!this.ctx) return false
       this.connectGraph()
+      this.ctx.addEventListener('statechange', () => {
+        if (this.ctx?.state === 'running') setPlaybackAudioSession()
+      })
     }
-    if (this.ctx.state === 'suspended') {
-      try {
-        await this.ctx.resume()
-      } catch {
-        return false
-      }
-    }
+    const resumed = await this.resumeContext()
+    if (!resumed) return false
     await this.primeBuffers()
     return this.ctx.state === 'running'
   }
@@ -98,10 +131,11 @@ class WorkoutAudio {
 
   play(id, { key = id } = {}) {
     if (!this.enabled || !id) return
+    setPlaybackAudioSession()
     const now = Date.now()
     if (this.lastPlay.key === key && now - this.lastPlay.at < 150) return
 
-    if (!this.ctx || this.ctx.state === 'suspended' || !this.buffers.has(id)) {
+    if (!this.ctx || contextNeedsResume(this.ctx) || !this.buffers.has(id)) {
       void this.unlock().then((ok) => {
         if (ok) this.play(id, { key })
       })
@@ -135,7 +169,8 @@ class WorkoutAudio {
     this.lastPlay = { id, at: Date.now(), key }
     try {
       source.start()
-    } catch {
+    } catch (error) {
+      logAudioError('start', error)
       this.current = null
       this.currentId = null
     }

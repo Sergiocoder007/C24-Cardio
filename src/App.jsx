@@ -33,6 +33,11 @@ function App() {
     setSelectedFighter(null)
   }
 
+  function handleSoundChange(enabled) {
+    if (enabled) void unlockWorkoutAudio()
+    setSoundOn(enabled)
+  }
+
   function startWorkout(fighter) {
     void unlockWorkoutAudio()
     setSession({
@@ -49,7 +54,7 @@ function App() {
       <WorkoutScreen
         session={session}
         soundOn={soundOn}
-        onSoundChange={setSoundOn}
+        onSoundChange={handleSoundChange}
         onExit={() => setScreen('setup')}
       />
     )
