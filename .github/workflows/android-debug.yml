@@ -80,6 +80,19 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
+      - name: Native timer unit tests
+        working-directory: android
+        run: ./gradlew :c24-workout-timer:testDebugUnitTest --no-daemon
+
+      - name: Check background-timer manifest entries
+        run: |
+          AAPT2=$(ls -d "${ANDROID_HOME}"/build-tools/*/aapt2 | tail -1)
+          "$AAPT2" dump xmltree --file AndroidManifest.xml android/app/build/outputs/apk/debug/app-debug.apk > manifest.txt
+          for needle in WorkoutTimerService FOREGROUND_SERVICE_MEDIA_PLAYBACK POST_NOTIFICATIONS WAKE_LOCK 'foregroundServiceType'; do
+            grep -q "$needle" manifest.txt || { echo "missing in manifest: $needle"; exit 1; }
+          done
+          grep -E "uses-permission|service|foregroundServiceType|targetSdkVersion|minSdkVersion" -A1 manifest.txt | grep -E 'name=|Type|Sdk' | head -40
+
       - name: Name the APK
         id: apk
         run: |

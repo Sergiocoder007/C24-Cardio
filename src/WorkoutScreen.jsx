@@ -3,6 +3,7 @@ import logoUrl from './assets/brand/c24-logo.png'
 import { useWorkoutSounds } from './audio'
 import { formatTrainingTime, plural } from './history.js'
 import { useKeepAwake } from './keepAwake.js'
+import { useBackgroundTimer } from './native/useBackgroundTimer.js'
 import { useWorkoutTimer } from './useWorkoutTimer'
 import { formatClock } from './workout'
 import './WorkoutScreen.css'
@@ -55,7 +56,10 @@ function CompleteView({ session, stats, onDone }) {
 
 export function WorkoutScreen({ session, soundOn, onSoundChange, onComplete, onExit, stats, backRequest }) {
   const timer = useWorkoutTimer(session)
-  const { needsTap } = useWorkoutSounds(timer, soundOn)
+  // Android: the background service plays the sounds and shows the
+  // lock-screen notification; otherwise the in-app engine plays them.
+  const background = useBackgroundTimer(timer, session, soundOn)
+  const { needsTap } = useWorkoutSounds(timer, soundOn && !background.active)
   const running = timer.status === 'running'
   useKeepAwake(running && !timer.paused)
 

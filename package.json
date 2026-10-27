@@ -17,6 +17,7 @@
     "@capacitor/core": "^8.0.0",
     "@capawesome/capacitor-keep-awake": ">=0.1.0 <1.0.0",
     "@fontsource-variable/oswald": "^5.2.0",
+    "c24-workout-timer": "file:plugins/workout-timer",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
