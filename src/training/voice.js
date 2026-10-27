@@ -66,11 +66,14 @@ function speakWithDevice(text) {
   if (!synth) return false
   try {
     synth.cancel()
-    const u = new SpeechSynthesisUtterance(text)
-    u.lang = 'en-US'
-    u.rate = 1.15
-    u.volume = 1
-    synth.speak(u)
+    // ';' separates moves that get a clear pause (one utterance each).
+    for (const move of text.split(/;\s*/)) {
+      const u = new SpeechSynthesisUtterance(move)
+      u.lang = 'en-US'
+      u.rate = 1
+      u.volume = 1
+      synth.speak(u)
+    }
     return true
   } catch {
     return false

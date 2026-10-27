@@ -86,7 +86,7 @@ for (const pace of PACES) {
   for (const style of Object.keys(COMBOS)) {
     for (const level of LEVELS) {
       for (const combo of COMBOS[style][level]) {
-        if (estimateSpeechMs(combo) + throwMs(combo) > pace * 1000) {
+        if (estimateSpeechMs(combo, pace >= 8) + throwMs(combo) > pace * 1000) {
           skipped.push(`${STYLE_NAMES[style]} ${LEVEL_NAMES[level]}: ${say(combo)}`)
         }
       }

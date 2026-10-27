@@ -1,6 +1,6 @@
 // Places combo calls inside each work round so they never overlap a beep,
 // the 10-second warning, a bell, or a rest period.
-import { MOVES, combosFor, displayText, spokenText } from './combos.js'
+import { MOVES, combosFor, displayText } from './combos.js'
 import { SOUND_IDS } from '../audio/soundBank.js'
 
 // How long each sound occupies (ms), including a little air around it.
@@ -31,9 +31,25 @@ export function syllables(text) {
 
 // Conservative spoken length at the app's speech rate (1.15x): about 230 ms
 // per syllable plus a short pause at each comma.
-export function estimateSpeechMs(moves) {
+// At the 8 s and 12 s paces each move is spoken separately with a clear pause
+// ("Jab … cross … hook"); at 5 s the combo is spoken as one quick phrase so
+// longer combos still fit.
+export const PAUSED_MIN_PACE_SEC = 8
+
+export function usesPauses(paceSec) {
+  return paceSec >= PAUSED_MIN_PACE_SEC
+}
+
+export function estimateSpeechMs(moves, paused = false) {
   const syl = moves.reduce((n, id) => n + syllables(MOVES[id].say), 0)
+  if (paused) return 350 + syl * 250 + (moves.length - 1) * 450
   return 350 + syl * 230 + (moves.length - 1) * 230
+}
+
+// Moves joined with ';' are spoken one by one with a pause (the Android
+// service and the browser voice split on ';'); ',' keeps one quick phrase.
+export function callText(moves, paused) {
+  return moves.map((id) => MOVES[id].say).join(paused ? '; ' : ', ')
 }
 
 function mulberry32(seed) {
@@ -76,7 +92,7 @@ export function buildComboSchedule(plan, { style, level, paceSec, seed = 1 }) {
       // Only combos that can be said clearly and still leave time to throw them
       // before the next call; otherwise this slot is skipped.
       const fits = pool
-        .map((moves, index) => ({ moves, index, ms: estimateSpeechMs(moves) }))
+        .map((moves, index) => ({ moves, index, ms: estimateSpeechMs(moves, usesPauses(paceSec)) }))
         .filter((o) => o.ms + throwMs(o.moves) <= paceMs && o.index !== last)
         .filter((o) => at + o.ms <= end && !overlaps(at, at + o.ms, windows))
       if (!fits.length) continue
@@ -86,7 +102,7 @@ export function buildComboSchedule(plan, { style, level, paceSec, seed = 1 }) {
         at,
         endAt: at + pick.ms,
         moves: pick.moves,
-        text: spokenText(pick.moves),
+        text: callText(pick.moves, usesPauses(paceSec)),
         display: displayText(pick.moves),
         round: phase.round,
       })

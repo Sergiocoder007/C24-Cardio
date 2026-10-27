@@ -14,7 +14,7 @@ test('every combo uses known moves and can be called and thrown at the 8s and 12
       assert.equal(COMBOS[style][level].length, 12, `${style} ${level}`)
       for (const combo of COMBOS[style][level]) {
         for (const move of combo) assert.ok(MOVES[move], `${move} in ${style}/${level}`)
-        assert.ok(estimateSpeechMs(combo) + throwMs(combo) <= 8_000, combo.join(' '))
+        assert.ok(estimateSpeechMs(combo, true) + throwMs(combo) <= 8_000, combo.join(' '))
       }
     }
   }
@@ -90,10 +90,17 @@ test('spoken text and display text for every call', () => {
   )
   assert.ok(calls.length > 50)
   for (const call of calls) {
-    assert.match(call.text, /^[A-Z][a-z]+( [a-z]+)*(, [A-Z][a-z]+( [a-z]+)*)*$/, call.text)
+    assert.match(call.text, /^[A-Z][a-z]+( [a-z]+)*(; [A-Z][a-z]+( [a-z]+)*)*$/, call.text)
     assert.match(call.display, /^[A-Z]+( [A-Z]+)*( · [A-Z]+( [A-Z]+)*)*$/, call.display)
     assert.ok(!/body jab|body hook/i.test(call.text), 'uses "to body" terminology')
   }
+})
+
+test('8s and 12s paces pause between moves; 5s speaks one quick phrase', () => {
+  const at = (paceSec) => buildComboSchedule(plan, { style: 'boxing', level: 'intermediate', paceSec, seed: 4 })
+  assert.ok(at(8).every((c) => !c.text.includes(',')) && at(8).some((c) => c.text.includes('; ')))
+  assert.ok(at(12).some((c) => c.text.includes('; ')))
+  assert.ok(at(5).every((c) => !c.text.includes(';')))
 })
 
 test('no two kicks or knees off the same leg back to back', () => {

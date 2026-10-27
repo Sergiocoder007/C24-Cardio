@@ -307,7 +307,7 @@ public class WorkoutTimerService extends Service {
                 }
             }
             if (!ttsReady) Log.w(TAG, "No usable text-to-speech voice; combos are shown but not spoken");
-            tts.setSpeechRate(1.15f);
+            tts.setSpeechRate(1.0f);
             tts.setAudioAttributes(new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
@@ -318,7 +318,7 @@ public class WorkoutTimerService extends Service {
 
                 @Override
                 public void onDone(String utteranceId) {
-                    abandonSpeechFocus();
+                    if (utteranceId != null && utteranceId.endsWith("-last")) abandonSpeechFocus();
                 }
 
                 @Override
@@ -329,10 +329,19 @@ public class WorkoutTimerService extends Service {
         });
     }
 
+    /** Pause between moves when the combo text separates them with ';' (8 s and 12 s paces). */
+    private static final long MOVE_GAP_MS = 350;
+
     private void speak(String text) {
         if (muted || tts == null || !ttsReady) return;
         requestSpeechFocus();
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "c24-" + SystemClock.elapsedRealtime());
+        String id = "c24-" + SystemClock.elapsedRealtime();
+        String[] moves = text.split(";\\s*");
+        for (int i = 0; i < moves.length; i++) {
+            int mode = i == 0 ? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD;
+            if (i > 0) tts.playSilentUtterance(MOVE_GAP_MS, TextToSpeech.QUEUE_ADD, id + "-gap" + i);
+            tts.speak(moves[i], mode, null, id + "-" + i + (i == moves.length - 1 ? "-last" : ""));
+        }
     }
 
     /** Briefly lowers other apps' music while a combo is spoken. */
