@@ -1,12 +1,14 @@
 name: Android release bundle (Play Store)
 
-# Builds the signed .aab to upload to Google Play. Started by hand only
-# (Actions › Android release bundle › Run workflow). The upload key comes from
+# Builds the signed .aab to upload to Google Play. Started by pushing a
+# play-v* tag (or by hand from the Actions tab). The upload key comes from
 # repository secrets and is never stored in the repo:
 #   C24_UPLOAD_KEYSTORE_BASE64, C24_UPLOAD_KEYSTORE_PASSWORD,
 #   C24_UPLOAD_KEY_ALIAS, C24_UPLOAD_KEY_PASSWORD
 on:
   workflow_dispatch:
+  push:
+    tags: ['play-v*'] # e.g. git tag play-v1.1.0-1 && git push origin play-v1.1.0-1
 
 permissions:
   contents: write # private draft release with the .aab
