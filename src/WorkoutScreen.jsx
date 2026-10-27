@@ -25,10 +25,10 @@ function displayValue(timer) {
   return formatClock(timer.remainingMs)
 }
 
-function CompleteView({ session, stats, onDone }) {
+function CompleteView({ session, stats, onDone, onShareChallenge }) {
   return (
     <section className="complete" aria-live="polite">
-      <p className="phase-label">WORKOUT COMPLETE</p>
+      <p className="phase-label">{session.challenge ? 'CHALLENGE COMPLETED' : 'WORKOUT COMPLETE'}</p>
       <h2 className="complete-title">GOOD WORK.</h2>
       <div className="complete-grid">
         <div>
@@ -49,14 +49,19 @@ function CompleteView({ session, stats, onDone }) {
         </div>
       </div>
       <p className="complete-note">{stats.streakMessage}</p>
-      <button type="button" className="btn-primary" onClick={onDone}>
+      {onShareChallenge ? (
+        <button type="button" className="btn-primary" onClick={onShareChallenge}>
+          SHARE COMPLETION CARD
+        </button>
+      ) : null}
+      <button type="button" className={onShareChallenge ? 'btn-outline' : 'btn-primary'} onClick={onDone}>
         DONE
       </button>
     </section>
   )
 }
 
-export function WorkoutScreen({ session, soundOn, onSoundChange, onComplete, onExit, stats, backRequest }) {
+export function WorkoutScreen({ session, soundOn, onSoundChange, onComplete, onExit, stats, backRequest, onShareChallenge }) {
   const timer = useWorkoutTimer(session)
   // Android: the background service plays the sounds and shows the
   // lock-screen notification; otherwise the in-app engine plays them.
@@ -115,7 +120,7 @@ export function WorkoutScreen({ session, soundOn, onSoundChange, onComplete, onE
         ) : null}
 
         {timer.status === 'complete' ? (
-          <CompleteView session={session} stats={stats} onDone={onExit} />
+          <CompleteView session={session} stats={stats} onDone={onExit} onShareChallenge={onShareChallenge} />
         ) : (
           <>
             <section className="clock-block" aria-live="off">

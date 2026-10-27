@@ -1,0 +1,99 @@
+/* C24 Challenges: reuses the Progress screen frame and setup cards. */
+.challenge .progress-frame {
+  gap: 16px;
+}
+
+.challenge-card-img {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  box-shadow: 0 0 36px var(--orange-haze);
+}
+
+.challenge-card-img.is-loading {
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.challenge-input {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 12px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--chip);
+  color: var(--text);
+  font: inherit;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color-scheme: dark;
+}
+
+.challenge-input:focus {
+  outline: 2px solid var(--orange);
+  outline-offset: 1px;
+}
+
+.challenge-summary {
+  margin: 0;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.6;
+}
+
+.challenge-summary span {
+  color: var(--orange);
+}
+
+.challenge-summary .is-expired {
+  color: var(--muted);
+}
+
+.challenge-note {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+
+.challenge-error {
+  margin: 0;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 106, 0, 0.5);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  list-style: none;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+}
+
+.challenge-link-btn {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+.challenge-entry {
+  margin-bottom: 12px;
+}
+
+.complete-challenge {
+  margin: 0;
+  color: var(--orange);
+  font-weight: 600;
+  letter-spacing: var(--track);
+}
+
+@media (min-width: 700px) {
+  .challenge .progress-frame {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+  }
+}

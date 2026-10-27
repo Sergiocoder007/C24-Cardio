@@ -5,7 +5,7 @@
 // discarded — "This session will not be saved").
 //
 // Session record: { id, finishedAt (ISO string), rounds, roundDurationSec,
-//                   restDurationSec, workSec }
+//                   restDurationSec, workSec, mode, challenge? }
 
 export const HISTORY_KEY = 'c24.history.v1'
 export const MAX_SESSIONS = 5000
@@ -58,9 +58,9 @@ export function isValidSession(s) {
   )
 }
 
-export function createSession({ rounds, roundDurationSec, restDurationSec, finishedAt, mode = 'sparring' }) {
+export function createSession({ rounds, roundDurationSec, restDurationSec, finishedAt, mode = 'sparring', challenge }) {
   const at = new Date(finishedAt)
-  return {
+  const record = {
     mode,
     id: `${at.getTime().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     finishedAt: at.toISOString(),
@@ -69,6 +69,9 @@ export function createSession({ rounds, roundDurationSec, restDurationSec, finis
     restDurationSec,
     workSec: rounds * roundDurationSec,
   }
+  // Workouts started from a C24 Challenge keep its link code.
+  if (typeof challenge === 'string' && challenge) record.challenge = challenge
+  return record
 }
 
 export function parseHistory(raw) {

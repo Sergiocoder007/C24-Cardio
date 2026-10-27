@@ -13,5 +13,16 @@
             android:name=".WorkoutTimerService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+
+        <!-- Shares challenge card images; read access is granted per share. -->
+        <provider
+            android:name=".C24ShareProvider"
+            android:authorities="${applicationId}.c24share"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/c24_share_paths" />
+        </provider>
     </application>
 </manifest>

@@ -1,4 +1,7 @@
 import { App as CapacitorApp } from '@capacitor/app'
+import { ChallengeCardScreen, CompletedChallengeScreen, CreateChallengeScreen, OpenChallengeScreen } from './ChallengeScreen'
+import { challengeSession, decodeChallenge, payloadFromUrl } from './challenge/challenge.js'
+import { findChallenge, loadChallenges, markChallengeCompleted, saveChallenges, upsertChallenge } from './challenge/store.js'
 import { Capacitor } from '@capacitor/core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { unlockWorkoutAudio } from './audio'
@@ -53,12 +56,49 @@ function useBackButton(handler) {
   }, [handler])
 }
 
+// Challenge links: the web app reads its own address; the Android app gets
+// the link it was opened with (cold start) and links opened while running.
+function useIncomingChallenge(onPayload) {
+  useEffect(() => {
+    const payload = typeof window !== 'undefined' ? payloadFromUrl(window.location.href) : null
+    if (payload) {
+      onPayload(payload)
+      window.history.replaceState(null, '', '/')
+    }
+    if (!Capacitor.isNativePlatform()) return undefined
+    let listener = null
+    let cancelled = false
+    CapacitorApp.getLaunchUrl()
+      .then((r) => {
+        const p = payloadFromUrl(r?.url)
+        if (p && !cancelled) onPayload(p)
+      })
+      .catch(() => {})
+    CapacitorApp.addListener('appUrlOpen', (event) => {
+      const p = payloadFromUrl(event.url)
+      if (p) onPayload(p)
+    })
+      .then((l) => {
+        if (cancelled) void l.remove()
+        else listener = l
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+      void listener?.remove()
+    }
+  }, [onPayload])
+}
+
 function App() {
   const [screen, setScreen] = useState('setup')
   const [settings, setSettings] = useState(() => loadSettings(storage))
   const [history, setHistory] = useState(() => loadHistory(storage))
   const [session, setSession] = useState(null)
   const [backRequest, setBackRequest] = useState(0)
+  const [challenges, setChallenges] = useState(() => loadChallenges(storage))
+  // { payload, completedAt? } for the challenge screens
+  const [challengeView, setChallengeView] = useState(null)
   const now = useNow()
 
   const stats = useMemo(() => computeStats(history, now), [history, now])
@@ -67,7 +107,7 @@ function App() {
 
   const handleBack = useCallback(() => {
     if (screen === 'workout') setBackRequest((n) => n + 1)
-    else if (screen === 'progress') setScreen('setup')
+    else if (screen !== 'setup') setScreen('setup')
     else void CapacitorApp.minimizeApp().catch(() => {})
   }, [screen])
   useBackButton(handleBack)
@@ -91,6 +131,35 @@ function App() {
     setScreen('workout')
   }
 
+  const updateChallenges = useCallback((fn) => {
+    setChallenges((list) => {
+      const next = fn(list)
+      saveChallenges(storage, next)
+      return next
+    })
+  }, [])
+
+  const openIncoming = useCallback(
+    (payload) => {
+      if (decodeChallenge(payload).ok) updateChallenges((list) => upsertChallenge(list, payload, 'received'))
+      setChallengeView({ payload })
+      // A link that arrives mid-workout waits until the workout ends.
+      setScreen((s) => (s === 'workout' ? s : 'challenge-open'))
+    },
+    [updateChallenges],
+  )
+  useIncomingChallenge(openIncoming)
+
+  const startChallenge = (payload) => {
+    const decoded = decodeChallenge(payload)
+    if (!decoded.ok) return
+    void unlockWorkoutAudio()
+    primeSpeech()
+    updateChallenges((list) => upsertChallenge(list, payload, 'received'))
+    setSession(challengeSession(decoded.challenge, payload, Date.now() % 2147483647))
+    setScreen('workout')
+  }
+
   const completeWorkout = useCallback(
     (finishedAt) => {
       setHistory((list) => {
@@ -98,8 +167,12 @@ function App() {
         saveHistory(storage, next)
         return next
       })
+      if (session.challenge) {
+        updateChallenges((list) => markChallengeCompleted(list, session.challenge, finishedAt))
+        setChallengeView({ payload: session.challenge, completedAt: new Date(finishedAt).toISOString() })
+      }
     },
-    [session],
+    [session, updateChallenges],
   )
 
   const exitWorkout = useCallback(() => setScreen('setup'), [])
@@ -119,8 +192,45 @@ function App() {
         onExit={exitWorkout}
         stats={stats}
         backRequest={backRequest}
+        onShareChallenge={session.challenge ? () => setScreen('challenge-done') : null}
       />
     )
+  }
+
+  const toSetup = () => setScreen('setup')
+  if (screen === 'challenge-create') {
+    return (
+      <CreateChallengeScreen
+        setup={settings.setup}
+        training={settings.training}
+        onBack={toSetup}
+        onCreated={(payload) => {
+          updateChallenges((list) => upsertChallenge(list, payload, 'created'))
+          setChallengeView({ payload })
+          setScreen('challenge-card')
+        }}
+      />
+    )
+  }
+  if (screen === 'challenge-card' && challengeView) {
+    return <ChallengeCardScreen payload={challengeView.payload} onStart={() => startChallenge(challengeView.payload)} onBack={toSetup} />
+  }
+  if (screen === 'challenge-open' && challengeView) {
+    return (
+      <OpenChallengeScreen
+        payload={challengeView.payload}
+        entry={findChallenge(challenges, challengeView.payload)}
+        onAccept={() => startChallenge(challengeView.payload)}
+        onShareCompleted={(completedAt) => {
+          setChallengeView({ payload: challengeView.payload, completedAt })
+          setScreen('challenge-done')
+        }}
+        onBack={toSetup}
+      />
+    )
+  }
+  if (screen === 'challenge-done' && challengeView?.completedAt) {
+    return <CompletedChallengeScreen payload={challengeView.payload} completedAt={challengeView.completedAt} onBack={toSetup} />
   }
 
   if (screen === 'progress') {
@@ -137,6 +247,7 @@ function App() {
       onStart={startWorkout}
       onReset={() => setSettings((s) => ({ ...s, setup: { ...DEFAULT_SETUP } }))}
       onOpenProgress={() => setScreen('progress')}
+      onCreateChallenge={() => setScreen('challenge-create')}
     />
   )
 }

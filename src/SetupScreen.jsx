@@ -12,7 +12,7 @@ import {
   formatRoundCount,
 } from './workout'
 
-function Chip({ selected, children, onSelect, label }) {
+export function Chip({ selected, children, onSelect, label }) {
   return (
     <button
       type="button"
@@ -26,7 +26,7 @@ function Chip({ selected, children, onSelect, label }) {
   )
 }
 
-function Stepper({ label, valueLabel, onDecrease, onIncrease, decreaseDisabled, increaseDisabled }) {
+export function Stepper({ label, valueLabel, onDecrease, onIncrease, decreaseDisabled, increaseDisabled }) {
   return (
     <div className="stepper" role="group" aria-label={label}>
       <button type="button" className="stepper-btn" onClick={onDecrease} disabled={decreaseDisabled} aria-label={`Decrease ${label}`}>
@@ -42,7 +42,7 @@ function Stepper({ label, valueLabel, onDecrease, onIncrease, decreaseDisabled, 
   )
 }
 
-function ConfigCard({ title, presets, value, custom, onPreset, onCustom, stepper }) {
+export function ConfigCard({ title, presets, value, custom, onPreset, onCustom, stepper }) {
   return (
     <section className="config-card" aria-label={title}>
       <h2 className="config-title">{title}</h2>
@@ -61,17 +61,17 @@ function ConfigCard({ title, presets, value, custom, onPreset, onCustom, stepper
   )
 }
 
-const STYLE_OPTIONS = [
+export const STYLE_OPTIONS = [
   { value: 'boxing', label: 'BOXING' },
   { value: 'muaythai', label: 'MUAY THAI' },
   { value: 'mixed', label: 'BOTH' },
 ]
-const LEVEL_OPTIONS = [
+export const LEVEL_OPTIONS = [
   { value: 'beginner', label: 'BEGINNER' },
   { value: 'intermediate', label: 'INTERMED.', aria: 'Intermediate' },
   { value: 'advanced', label: 'ADVANCED' },
 ]
-const PACE_OPTIONS = [
+export const PACE_OPTIONS = [
   { value: 5, label: '5 SEC', aria: 'A combo every 5 seconds' },
   { value: 8, label: '8 SEC', aria: 'A combo every 8 seconds' },
   { value: 12, label: '12 SEC', aria: 'A combo every 12 seconds' },
@@ -149,7 +149,7 @@ function ResetIcon() {
   )
 }
 
-export function SetupScreen({ setup, onChange, training, onTrainingChange, stats, onStart, onReset, onOpenProgress }) {
+export function SetupScreen({ setup, onChange, training, onTrainingChange, stats, onStart, onReset, onOpenProgress, onCreateChallenge }) {
   const { rounds, roundsCustom, roundDurationSec, roundDurationCustom, restDurationSec, restDurationCustom } = setup
   const set = (patch) => onChange({ ...setup, ...patch })
   const step = (key, delta, limits) => set({ [key]: clamp(setup[key] + delta, limits.min, limits.max) })
@@ -264,6 +264,9 @@ export function SetupScreen({ setup, onChange, training, onTrainingChange, stats
           </div>
         </section>
 
+        <button type="button" className="btn-outline challenge-entry" onClick={onCreateChallenge}>
+          C24 CHALLENGES · CREATE A CHALLENGE <span aria-hidden="true">›</span>
+        </button>
         <button type="button" className="btn-primary start-btn" onClick={onStart}>
           START WORKOUT <span aria-hidden="true">›</span>
         </button>

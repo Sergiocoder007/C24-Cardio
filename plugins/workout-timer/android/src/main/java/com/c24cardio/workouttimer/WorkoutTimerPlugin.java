@@ -1,10 +1,16 @@
 package com.c24cardio.workouttimer;
 
 import android.Manifest;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import java.io.File;
+import java.io.FileOutputStream;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -20,6 +26,9 @@ import com.getcapacitor.annotation.Permission;
  * when the user taps the notification buttons; events are retained until the
  * web app is listening, so taps made while the app is in the background are
  * not lost.
+ *
+ * shareImage({ base64, fileName, text, title }) opens the Android share sheet
+ * with a PNG (a C24 Challenge card) and a caption containing the link.
  */
 @CapacitorPlugin(
     name = "WorkoutTimer",
@@ -113,5 +122,46 @@ public class WorkoutTimerPlugin extends Plugin implements WorkoutTimerService.Li
         data.put("activeMs", activeMs);
         data.put("at", atWallMs);
         notifyListeners("action", data, true);
+    }
+
+    @PluginMethod
+    public void shareImage(PluginCall call) {
+        String base64 = call.getString("base64");
+        if (base64 == null || base64.isEmpty()) {
+            call.reject("base64 is required");
+            return;
+        }
+        String fileName = call.getString("fileName", "c24-challenge.png").replaceAll("[^A-Za-z0-9._-]", "");
+        if (!fileName.endsWith(".png")) fileName = fileName + ".png";
+        String text = call.getString("text", "");
+        String title = call.getString("title", "Share challenge");
+        try {
+            byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
+            File dir = new File(getContext().getCacheDir(), "shared");
+            if (!dir.exists() && !dir.mkdirs()) throw new IllegalStateException("no cache folder");
+            File[] old = dir.listFiles();
+            if (old != null) {
+                for (File f : old) {
+                    if (!f.getName().equals(fileName)) //noinspection ResultOfMethodCallIgnored
+                        f.delete();
+                }
+            }
+            File file = new File(dir, fileName);
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                out.write(bytes);
+            }
+            Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".c24share", file);
+            Intent send = new Intent(Intent.ACTION_SEND)
+                .setType("image/png")
+                .putExtra(Intent.EXTRA_STREAM, uri)
+                .putExtra(Intent.EXTRA_TEXT, text)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            send.setClipData(ClipData.newRawUri("", uri));
+            Intent chooser = Intent.createChooser(send, title).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            getActivity().startActivity(chooser);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Could not open the share sheet", e);
+        }
     }
 }

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "test": "node --test src/*.test.mjs src/audio/*.test.mjs src/training/*.test.mjs",
+    "test": "node --test src/*.test.mjs src/audio/*.test.mjs src/training/*.test.mjs src/challenge/*.test.mjs",
     "preview": "vite preview",
     "android:sync": "vite build && cap sync android",
     "android:open": "cap open android"
