@@ -23,13 +23,15 @@ export function useBackgroundTimer(timer, session, soundOn, extras) {
       const t = timerRef.current
       const elapsedMs = activeElapsedMs(plan.phases, t)
       if (elapsedMs == null) return
+      // Silence the in-app engine first so no cue can play twice during the
+      // hand-off; if the service fails to start, the in-app engine takes over.
+      setActive(true)
       try {
         await WorkoutTimer.start({ plan, elapsedMs, muted: !soundRef.current })
         if (cancelled) return
         if (timerRef.current.paused) await WorkoutTimer.pause()
-        setActive(true)
       } catch {
-        setActive(false) // in-app audio continues
+        if (!cancelled) setActive(false) // in-app audio continues
       }
     }
     void begin()

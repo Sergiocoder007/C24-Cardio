@@ -297,8 +297,16 @@ public class WorkoutTimerService extends Service {
         if (tts != null) return;
         tts = new TextToSpeech(this, status -> {
             if (status != TextToSpeech.SUCCESS) return;
-            int result = tts.setLanguage(Locale.US);
-            ttsReady = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED;
+            // US English first; fall back to UK, any English, then the phone's language.
+            ttsReady = false;
+            for (Locale locale : new Locale[] { Locale.US, Locale.UK, Locale.ENGLISH, Locale.getDefault() }) {
+                int result = tts.setLanguage(locale);
+                if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
+                    ttsReady = true;
+                    break;
+                }
+            }
+            if (!ttsReady) Log.w(TAG, "No usable text-to-speech voice; combos are shown but not spoken");
             tts.setSpeechRate(1.15f);
             tts.setAudioAttributes(new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_MEDIA)

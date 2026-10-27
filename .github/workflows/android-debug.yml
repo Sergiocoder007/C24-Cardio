@@ -76,9 +76,36 @@ jobs:
       - name: Sync web build into Android
         run: npx cap sync android
 
+      # Reuse one debug signing key across builds so each new APK installs as an
+      # update (keeping workout history). The key lives only in the Actions
+      # cache, never in the repo. It is a throwaway debug key, not a release key.
+      # Note: GitHub drops caches unused for 7 days; after that a new key is made
+      # and the phone needs one uninstall.
+      - name: Restore debug signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: c24-debug-keystore-v1
+
+      - name: Create debug signing key if missing
+        run: |
+          mkdir -p ~/.android
+          if [ ! -f ~/.android/debug.keystore ]; then
+            echo "No cached debug key; creating a new one"
+            keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android \
+              -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 \
+              -validity 10000 -dname "CN=Android Debug,O=Android,C=US" > /dev/null
+          fi
+          keytool -list -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey | grep -i "SHA-256"
+
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Signing certificate of the APK
+        run: |
+          APKSIGNER=$(ls -d "${ANDROID_HOME}"/build-tools/*/apksigner | tail -1)
+          "$APKSIGNER" verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | grep -i "SHA-256"
 
       - name: Native timer unit tests
         working-directory: android

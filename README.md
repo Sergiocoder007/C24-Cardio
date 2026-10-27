@@ -1,7 +1,9 @@
 # C24 Cardio
 
 Round timer for combat conditioning: rounds, work and rest, sound cues, and on-device
-history with progress and streaks. React + Vite web app, wrapped with Capacitor for
+history with progress and streaks. Two modes: **Sparring** (timer only) and **Training**
+(spoken Boxing / Muay Thai combinations each round). On Android a foreground service keeps
+the timer, sounds and calls running with the screen locked and shows a lock-screen countdown. React + Vite web app, wrapped with Capacitor for
 iOS and Android.
 
 ## Develop
@@ -11,7 +13,8 @@ Requires Node.js 22+.
 ```bash
 npm install
 npm run dev      # web app at http://localhost:5173
-npm test         # timer, history/streak and audio regression tests
+npm test         # timer, plan, history/streak, audio and combo-scheduler tests
+node scripts/combos-doc.mjs   # regenerate COMBOS.md and the voice clip manifest
 npm run lint
 npm run build    # production build in dist/
 ```
@@ -26,6 +29,10 @@ npm run build    # production build in dist/
 | `src/audio/workoutCues.js` | Decides which sound plays when (10s warning, 5–1 ticks, bells) |
 | `src/history.js` | Saved workouts, totals, best day, records, streaks |
 | `src/keepAwake.js` | Keeps the screen on during a workout |
+| `src/workoutPlan.js` | Precomputes every phase and sound cue (shared with the Android service) |
+| `src/training/` | Combo library, call scheduler (no overlap with beeps/bells/rest) and voice |
+| `src/native/` | Bridge to the Android background timer (`useBackgroundTimer.js`) |
+| `plugins/workout-timer/` | Local Capacitor plugin: foreground service, notification, sounds, speech (Java) |
 | `src/SetupScreen.jsx`, `WorkoutScreen.jsx`, `ProgressScreen.jsx` | Screens |
 | `assets/` | Source images for app icons and splash screens |
 
@@ -39,8 +46,12 @@ Actions: tests, lint, production build, then a debug APK. Get it from the repo's
 run's **Artifacts** in the Actions tab. You can also start it from Actions › Android
 debug APK › Run workflow.
 
-Debug builds are signed with a throwaway key made on each run, so uninstall the
-previous debug build before installing a newer one (this clears its local history).
+Debug builds are signed with a throwaway debug key kept in the GitHub Actions cache (never in
+the repo), so a newer APK installs over the previous one and keeps workout history. If the
+cache expires (7 days without a build) a new key is made, and the phone needs one uninstall
+before the next install (this clears local history). Install with
+`bash ~/Downloads/c24-cardio-apk/install-c24.sh`. See `ANDROID_BACKGROUND.md` for the Play
+Console foreground-service declaration.
 
 ### Local build
 
@@ -67,7 +78,8 @@ After code changes: `npm run android:sync`, then build or run from Android Studi
 
 ## Device test checklist (before each release)
 
-Run on a physical phone with the screen auto-lock set to 30 seconds:
+The full Android checklist (background, spoken combos, notifications, completion) is in
+`DEVICE_TEST.md`. Quick regression pass on a physical phone with the screen auto-lock set to 30 seconds:
 
 - [ ] 10 rounds × 30 s with 30 s rest: every 10 s warning, 5–1 tick and bell plays in every round
 - [ ] Screen stays on for the whole workout

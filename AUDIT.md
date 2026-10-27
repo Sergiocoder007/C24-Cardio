@@ -95,6 +95,14 @@ Already present, so not proposed: custom rounds, work and rest durations, sound 
 4. `89827fc` Capacitor 8 config and dependencies; remove the Windows `.npmrc`; add a test script.
 5. `50eb7c7` Update the privacy policy for the rebuilt app.
 6. `fc615ec` Android setup script, icon and splash sources, README.
+7. `147bffd`, `bdbaa31` Cloud Android build on GitHub Actions (no Android Studio needed).
+8. `7bd8c7e` Rounded buttons and responsive layout.
+9. `19c7535` Whole workout plan precomputed, proven identical to the in-app timer.
+10. `0208a51`, `2158411` Android background timer: foreground service (mediaPlayback), lock-screen countdown with Pause/Stop, native sounds.
+11. `bb8e332`, `c22533c` Training mode: 72-combo library, call scheduler, device speech, ElevenLabs-ready clips.
+12. `c8e5342`, `ed0fdbf` Docs (COMBOS.md, ANDROID_BACKGROUND.md); persistent WORKOUT COMPLETE notification.
+13. `6e50a08` Revised combo library (awaiting owner approval) and DEVICE_TEST.md.
+14. Verification pass: no double sound during the hand-off to the background service, speech language fallback, stable debug signing key in CI, privacy policy covers the notification service and speech.
 
 ## G. Verification results
 
@@ -105,7 +113,10 @@ Already present, so not proposed: custom rounds, work and rest durations, sound 
 | JavaScript bundle (Bun) of the app | **Passed** |
 | Android debug build (GitHub Actions, run 40500159627) | **Passed**: `com.c24cardio.app` 1.1.0 (build 2), minSdk 24, targetSdk 36; APK in a private draft release |
 | `npm install`, `npm test`, `oxlint`, `vite build` in CI | **Passed**: lint 0 errors, 1 intentional hook-dependency warning |
-| Physical iPhone / Android device | **Not run** |
+| `npm test` now (timer, plan parity, history, audio, combo scheduler) | **Passed**: 80 tests |
+| Native plugin JUnit tests (`WorkoutClockTest`) in CI | **Passed** in every Android build |
+| Physical Android (owner) | 10 rounds × 30 s with no sound break; lock-screen countdown shows. Other items in `DEVICE_TEST.md` not yet confirmed |
+| Physical iPhone | **Not run** |
 | Visual match to the App Store screenshots | Confirmed by the owner from the preview |
 
 ## H. Remaining work
