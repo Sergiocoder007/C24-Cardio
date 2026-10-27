@@ -98,14 +98,36 @@ jobs:
           fi
           keytool -list -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey | grep -i "SHA-256"
 
+      - name: Sign debug builds with the cached key
+        # Point Gradle at the cached key explicitly; the runner's default debug
+        # keystore location is not ~/.android.
+        run: |
+          cat >> android/app/build.gradle <<'GRADLE'
+
+          android {
+              signingConfigs {
+                  debug {
+                      storeFile file("${System.getProperty('user.home')}/.android/debug.keystore")
+                      storePassword 'android'
+                      keyAlias 'androiddebugkey'
+                      keyPassword 'android'
+                  }
+              }
+          }
+          GRADLE
+
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Signing certificate of the APK
+      - name: Check the APK is signed with the cached key
         run: |
           APKSIGNER=$(ls -d "${ANDROID_HOME}"/build-tools/*/apksigner | tail -1)
-          "$APKSIGNER" verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | grep -i "SHA-256"
+          APK_CERT=$("$APKSIGNER" verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | grep -i "SHA-256" | head -1 | awk '{print $NF}')
+          KEY_CERT=$(keytool -list -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey | grep -i "SHA-256" | awk '{print $NF}' | tr -d ':' | tr 'A-F' 'a-f')
+          echo "APK signer: $APK_CERT"
+          echo "Cached key: $KEY_CERT"
+          [ "$APK_CERT" = "$KEY_CERT" ] || { echo "APK is not signed with the cached debug key"; exit 1; }
 
       - name: Native timer unit tests
         working-directory: android

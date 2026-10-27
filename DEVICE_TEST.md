@@ -1,8 +1,8 @@
 # C24 Cardio — physical-device test checklist
 
-Build under test: `c24-cardio-debug-ed0fdbf.apk` (in `~/Downloads/c24-cardio-apk/`, installed
-with `bash ~/Downloads/c24-cardio-apk/install-c24.sh`). This build has the first combo draft; the
-revised combo list (COMBOS.md) ships in the next build after approval.
+Build under test: `c24-cardio-debug-712d615.apk` (in `~/Downloads/c24-cardio-apk/`, installed
+with `bash ~/Downloads/c24-cardio-apk/install-c24.sh`). It contains the revised combo list
+(COMBOS.md) and the persistent WORKOUT COMPLETE notification.
 
 **Before you start**
 - [ ] Phone volume up, Do Not Disturb off, battery above 30%.
@@ -76,6 +76,7 @@ Spotify or YouTube Music first.
 
 ## 6. Permissions and regressions
 
+- [ ] 6.0 Install the next debug build over this one: it installs as an update and Your Training keeps its history.
 - [ ] 6.1 Fresh install, **deny** notifications: sounds still continue with the screen locked (no notification shown).
 - [ ] 6.2 Sparring mode, 10 rounds × 30 sec, screen locked the whole time: every round complete with all sounds (the original round 4–5 bug).
 - [ ] 6.3 Sound OFF in the app: nothing plays, screen on or off; Sound ON brings it back.
