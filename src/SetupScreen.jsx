@@ -199,7 +199,16 @@ function ChallengeSlider({ onOpen }) {
       aria-label="C24 Challenges: challenge a friend"
     >
       <span className="challenge-entry-fill" style={{ width: `calc(${x}px + 56px)` }} aria-hidden="true" />
-      <span ref={knob} className="challenge-entry-icon" style={{ transform: `translateX(${x}px)` }} aria-hidden="true">
+      <span
+        ref={knob}
+        className="challenge-entry-icon"
+        // Red corner → blue corner as it slides.
+        style={{
+          transform: `translateX(${x}px)`,
+          background: `color-mix(in srgb, #1e6bff ${Math.min(100, Math.round((x / 260) * 100))}%, #e5232b)`,
+        }}
+        aria-hidden="true"
+      >
         <svg viewBox="0 0 24 24" width="18" height="18">
           <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor" />
         </svg>

@@ -20,8 +20,11 @@ import { formatDuration } from '../workout.js'
 export const CARD_WIDTH = 1080
 export const CARD_HEIGHT = 1350
 
-const ORANGE = '#ff6a00'
-const ORANGE_SOFT = '#ff8533'
+// Challenges use red corner / blue corner colours instead of the app's orange.
+const ORANGE = '#e5232b'
+const ORANGE_SOFT = '#ff4a50'
+const BLUE = '#1e6bff'
+const BLUE_SOFT = '#4d8cff'
 const BG = '#050505'
 const PANEL = '#121212'
 const LINE = '#2a2a2a'
@@ -71,14 +74,14 @@ function drawBackground(ctx) {
   ctx.fillStyle = BG
   ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
   const glow = ctx.createRadialGradient(CARD_WIDTH * 0.92, 80, 20, CARD_WIDTH * 0.92, 80, 900)
-  glow.addColorStop(0, 'rgba(255, 106, 0, 0.34)')
-  glow.addColorStop(0.45, 'rgba(255, 106, 0, 0.08)')
-  glow.addColorStop(1, 'rgba(255, 106, 0, 0)')
+  glow.addColorStop(0, 'rgba(229, 35, 43, 0.36)')
+  glow.addColorStop(0.45, 'rgba(229, 35, 43, 0.08)')
+  glow.addColorStop(1, 'rgba(229, 35, 43, 0)')
   ctx.fillStyle = glow
   ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
   const low = ctx.createRadialGradient(0, CARD_HEIGHT, 10, 0, CARD_HEIGHT, 700)
-  low.addColorStop(0, 'rgba(255, 106, 0, 0.16)')
-  low.addColorStop(1, 'rgba(255, 106, 0, 0)')
+  low.addColorStop(0, 'rgba(30, 107, 255, 0.26)')
+  low.addColorStop(1, 'rgba(30, 107, 255, 0)')
   ctx.fillStyle = low
   ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
 
@@ -87,8 +90,8 @@ function drawBackground(ctx) {
   ctx.beginPath()
   ctx.rect(0, CARD_HEIGHT - 26, CARD_WIDTH, 26)
   ctx.clip()
-  ctx.fillStyle = ORANGE
   for (let x = -40; x < CARD_WIDTH + 40; x += 56) {
+    ctx.fillStyle = x < CARD_WIDTH / 2 ? ORANGE : BLUE
     ctx.beginPath()
     ctx.moveTo(x, CARD_HEIGHT)
     ctx.lineTo(x + 28, CARD_HEIGHT)
@@ -102,7 +105,10 @@ function drawBackground(ctx) {
   // Frame.
   roundRect(ctx, 28, 28, CARD_WIDTH - 56, CARD_HEIGHT - 84, 44)
   ctx.lineWidth = 3
-  ctx.strokeStyle = 'rgba(255, 106, 0, 0.55)'
+  const frame = ctx.createLinearGradient(0, 0, CARD_WIDTH, CARD_HEIGHT)
+  frame.addColorStop(0, 'rgba(229, 35, 43, 0.75)')
+  frame.addColorStop(1, 'rgba(30, 107, 255, 0.75)')
+  ctx.strokeStyle = frame
   ctx.stroke()
 }
 
@@ -173,12 +179,12 @@ function drawChips(ctx, labels, y) {
     if (i === 0) {
       ctx.fillStyle = ORANGE
       ctx.fill()
-      ctx.fillStyle = '#0a0a0a'
+      ctx.fillStyle = '#ffffff'
     } else {
       ctx.fillStyle = 'rgba(255,255,255,0.04)'
       ctx.fill()
       ctx.lineWidth = 2
-      ctx.strokeStyle = 'rgba(255, 106, 0, 0.8)'
+      ctx.strokeStyle = BLUE_SOFT
       ctx.stroke()
       ctx.fillStyle = TEXT
     }
@@ -229,7 +235,7 @@ function drawFooter(ctx, code, line2) {
   ctx.fillStyle = ORANGE
   ctx.font = font(700, 64)
   spacedText(ctx, `#${code.toUpperCase()}`, LEFT, y + 112, 8)
-  ctx.fillStyle = ORANGE_SOFT
+  ctx.fillStyle = BLUE_SOFT
   ctx.font = font(500, 32)
   spacedText(ctx, 'c24cardio.fit', CARD_WIDTH - LEFT, y + 62, 2, 'right')
   ctx.fillStyle = MUTED
@@ -257,19 +263,19 @@ function drawCta(ctx, label, filled = true) {
   roundRect(ctx, LEFT, y, INNER, h, h / 2)
   if (filled) {
     const grad = ctx.createLinearGradient(LEFT, y, LEFT + INNER, y + h)
-    grad.addColorStop(0, ORANGE_SOFT)
-    grad.addColorStop(1, ORANGE)
+    grad.addColorStop(0, ORANGE)
+    grad.addColorStop(1, BLUE)
     ctx.fillStyle = grad
-    ctx.shadowColor = 'rgba(255, 106, 0, 0.5)'
+    ctx.shadowColor = 'rgba(120, 60, 200, 0.45)'
     ctx.shadowBlur = 36
     ctx.fill()
     ctx.shadowBlur = 0
-    ctx.fillStyle = '#0a0a0a'
+    ctx.fillStyle = '#ffffff'
   } else {
     ctx.lineWidth = 4
-    ctx.strokeStyle = ORANGE
+    ctx.strokeStyle = BLUE
     ctx.stroke()
-    ctx.fillStyle = ORANGE
+    ctx.fillStyle = BLUE_SOFT
   }
   ctx.font = font(700, 52)
   spacedText(ctx, label, CARD_WIDTH / 2, y + h / 2 + 18, 7, 'center')
@@ -309,7 +315,7 @@ export function drawCompletionCard(ctx, { challenge: c, completedAt, logo }) {
   ctx.beginPath()
   ctx.arc(LEFT + 32, cy, 32, 0, Math.PI * 2)
   ctx.fillStyle = ORANGE
-  ctx.shadowColor = 'rgba(255, 106, 0, 0.6)'
+  ctx.shadowColor = 'rgba(229, 35, 43, 0.6)'
   ctx.shadowBlur = 28
   ctx.fill()
   ctx.shadowBlur = 0
@@ -320,7 +326,7 @@ export function drawCompletionCard(ctx, { challenge: c, completedAt, logo }) {
   ctx.lineWidth = 8
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
-  ctx.strokeStyle = '#0a0a0a'
+  ctx.strokeStyle = '#ffffff'
   ctx.stroke()
   const sub = `${challengeTitle(c)} · ${LEVEL_NAMES[c.level]}`
   let size = 40
@@ -340,9 +346,9 @@ export function drawCompletionCard(ctx, { challenge: c, completedAt, logo }) {
     const pw = measureSpaced(ctx, label, 5) + 40
     roundRect(ctx, LEFT + w + 28, L.value - 40, pw, 50, 25)
     ctx.lineWidth = 2
-    ctx.strokeStyle = ORANGE
+    ctx.strokeStyle = BLUE_SOFT
     ctx.stroke()
-    ctx.fillStyle = ORANGE
+    ctx.fillStyle = BLUE_SOFT
     spacedText(ctx, label, LEFT + w + 48, L.value - 6, 5)
   }
   drawCta(ctx, 'THINK YOU CAN DO IT?', false)

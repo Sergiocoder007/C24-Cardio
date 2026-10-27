@@ -1,6 +1,53 @@
-/* C24 Challenges: reuses the Progress screen frame and setup cards. */
+/* C24 Challenges: reuses the Progress screen frame and setup cards, recoloured
+   red corner / blue corner instead of the app's orange. */
+.challenge,
+.challenge-entry {
+  --red: #e5232b;
+  --red-soft: #ff4a50;
+  --blue: #1e6bff;
+  --blue-soft: #4d8cff;
+}
+
+.challenge {
+  --orange: var(--red);
+  --orange-soft: var(--red-soft);
+  --orange-line: rgba(229, 35, 43, 0.85);
+  --orange-glow: rgba(229, 35, 43, 0.38);
+  --orange-haze: rgba(30, 107, 255, 0.16);
+  --on-orange: #ffffff;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(229, 35, 43, 0.16), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(30, 107, 255, 0.16), transparent 45%),
+    var(--bg);
+}
+
 .challenge .progress-frame {
   gap: 16px;
+}
+
+.challenge .btn-primary {
+  background: linear-gradient(90deg, var(--red), var(--blue));
+  box-shadow: 0 0 28px rgba(120, 60, 200, 0.35);
+}
+
+.challenge .btn-outline,
+.challenge .back-btn {
+  border-color: var(--blue-soft);
+}
+
+.challenge .back-btn {
+  color: var(--blue-soft);
+}
+
+.challenge .chip.is-selected {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.challenge .config-title,
+.challenge .training-label {
+  color: var(--blue-soft);
 }
 
 .challenge-card-img {
@@ -47,7 +94,7 @@
 }
 
 .challenge-summary span {
-  color: var(--orange);
+  color: var(--blue-soft);
 }
 
 .challenge-summary .is-expired {
@@ -97,21 +144,21 @@
   min-height: 56px;
   margin-bottom: 12px;
   padding: 8px 16px 8px 10px;
-  border: 1px solid rgba(255, 106, 0, 0.35);
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--orange-haze), rgba(255, 255, 255, 0.02));
+  background:
+    linear-gradient(90deg, rgba(229, 35, 43, 0.14), rgba(30, 107, 255, 0.14)) padding-box,
+    linear-gradient(var(--panel), var(--panel)) padding-box,
+    linear-gradient(90deg, var(--red), var(--blue)) border-box;
   text-align: left;
 }
 
-.challenge-entry:active {
-  border-color: var(--orange);
-}
 
 .challenge-entry-fill {
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(255, 106, 0, 0.12), rgba(255, 106, 0, 0.45));
+  background: linear-gradient(90deg, rgba(229, 35, 43, 0.55), rgba(30, 107, 255, 0.55));
   transition: width 0.25s ease;
   pointer-events: none;
 }
@@ -131,15 +178,15 @@
 
 .challenge-entry-icon {
   z-index: 1;
-  box-shadow: 0 0 16px var(--orange-glow);
+  box-shadow: 0 0 16px rgba(229, 35, 43, 0.6);
   display: grid;
   place-items: center;
   flex: none;
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: var(--orange);
-  color: var(--on-orange);
+  background: var(--red);
+  color: #fff;
 }
 
 .challenge-entry-text {
@@ -163,7 +210,7 @@
 }
 
 .challenge-entry-go {
-  color: var(--orange);
+  color: var(--blue-soft);
   font-size: 1.1rem;
   letter-spacing: -0.05em;
   line-height: 1;
