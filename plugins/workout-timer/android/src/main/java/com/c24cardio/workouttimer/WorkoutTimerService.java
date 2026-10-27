@@ -161,6 +161,11 @@ public class WorkoutTimerService extends Service {
                 if (muted) stopSound();
                 break;
             case ACTION_STOP:
+                if (finishing) {
+                    // Workout already completed: keep the completion notice.
+                    finishWorkout();
+                    break;
+                }
                 if (fromButton) notifyListener("stop", now);
                 stopEverything();
                 break;
@@ -262,7 +267,8 @@ public class WorkoutTimerService extends Service {
         if (phase != lastPhaseIndex || clock.isComplete(now)) updateNotification(now);
         if (clock.isComplete(now)) {
             finishing = true;
-            handler.postDelayed(this::stopEverything, FINISH_LINGER_MS);
+            // Let the victory sound finish, then leave a completion notice behind.
+            handler.postDelayed(this::finishWorkout, FINISH_LINGER_MS);
             return;
         }
         schedule(now);
@@ -433,6 +439,38 @@ public class WorkoutTimerService extends Service {
 
     private void releaseWakeLock() {
         if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
+    }
+
+    /**
+     * Ends the service after a completed workout but keeps a "WORKOUT COMPLETE"
+     * notification that stays until the user swipes it away or taps it.
+     */
+    private void finishWorkout() {
+        int rounds = clock != null ? clock.rounds() : 0;
+        handler.removeCallbacksAndMessages(null);
+        clock = null;
+        releaseWakeLock();
+        // Detach keeps the notification on screen after the service stops.
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH);
+        Notification done = new NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_c24_timer)
+            .setColor(0xFFFF6A00)
+            .setContentTitle("WORKOUT COMPLETE")
+            .setContentText((rounds == 1 ? "1 round" : rounds + " rounds") + " done \u00B7 Good work.")
+            .setContentIntent(openAppIntent())
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOngoing(false)
+            .setAutoCancel(true)
+            .setSilent(true)
+            .setShowWhen(true)
+            .setWhen(System.currentTimeMillis())
+            .build();
+        try {
+            NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, done);
+        } catch (SecurityException e) {
+            // Notifications not allowed; nothing to show.
+        }
+        stopSelf();
     }
 
     private void stopEverything() {
