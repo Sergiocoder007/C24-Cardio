@@ -17,6 +17,8 @@
   --on-orange: #0a0a0a;
   --display: 'Oswald Variable', 'Oswald', 'Bebas Neue', 'DIN Condensed', 'Arial Narrow', Impact, sans-serif;
   --track: 0.18em;
+  --radius: 14px;
+  --radius-sm: 10px;
   color-scheme: dark;
 }
 
@@ -66,7 +68,7 @@ svg {
 }
 
 .screen-frame {
-  width: min(100%, 480px);
+  width: min(100%, 520px);
   margin: 0 auto;
   min-height: 100dvh;
   padding-top: max(16px, env(safe-area-inset-top, 0px));
@@ -81,7 +83,7 @@ svg {
 .btn-outline {
   width: 100%;
   min-height: 56px;
-  border-radius: 0;
+  border-radius: var(--radius);
   font-weight: 600;
   font-size: 1.15rem;
   letter-spacing: var(--track);
@@ -107,7 +109,7 @@ svg {
 
 .btn-outline {
   border: 1px solid rgba(255, 106, 0, 0.35);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.02);
   color: var(--text);
   font-size: 1rem;
 }
@@ -147,5 +149,15 @@ svg {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Tablets and large screens: a wider column, never stretched edge to edge. */
+@media (min-width: 700px) {
+  html {
+    font-size: 118%;
+  }
+  .screen-frame {
+    width: min(100%, 760px);
   }
 }

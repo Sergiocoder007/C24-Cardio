@@ -20,6 +20,7 @@
 }
 
 .setup-brand {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -32,15 +33,18 @@
 }
 
 .setup-word {
-  font-size: clamp(1.25rem, 6vw, 1.6rem);
-  letter-spacing: 0.24em;
+  min-width: 0;
+  font-size: clamp(0.9rem, 4.2vw, 1.6rem);
+  letter-spacing: 0.16em;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .setup-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   flex: none;
 }
 
@@ -285,7 +289,7 @@
 .start-btn {
   margin-top: 12px;
   min-height: 66px;
-  border-radius: 12px;
+  border-radius: 18px;
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -341,9 +345,9 @@
   flex: none;
   min-width: 84px;
   min-height: 46px;
-  padding: 0 16px;
+  padding: 0 18px;
   border: 1.5px solid var(--orange);
-  border-radius: 10px;
+  border-radius: 999px;
   background: transparent;
   color: var(--orange);
   font-weight: 600;
@@ -469,4 +473,65 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
+}
+
+/* Small phones: chips wrap to two rows of three so labels stay readable. */
+@media (max-width: 360px) {
+  .chip-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .setup-brand {
+    gap: 8px;
+  }
+  .setup-brand .brand-mark {
+    width: 40px;
+    height: 40px;
+  }
+  .setup-word {
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+  }
+  .setup-actions {
+    gap: 8px;
+  }
+  .text-btn {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .stat-value {
+    font-size: 1.1rem;
+  }
+  .start-btn {
+    font-size: 1.3rem;
+  }
+  .progress-word {
+    font-size: 0.8rem;
+  }
+  .back-btn {
+    min-width: 0;
+    padding: 0 14px;
+  }
+}
+
+/* Tablets and landscape: use the extra width */
+@media (min-width: 700px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .chip {
+    min-height: 50px;
+    font-size: 0.95rem;
+  }
+  .progress-frame {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+  }
+  .progress-top {
+    grid-column: 1 / -1;
+  }
 }
