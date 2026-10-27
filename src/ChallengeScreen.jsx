@@ -19,6 +19,8 @@ import {
   shareMessage,
 } from './challenge/challenge.js'
 import { shareCard } from './challenge/share.js'
+
+const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.c24cardio.app'
 import {
   REST_DURATION_LIMITS,
   REST_DURATION_PRESETS,
@@ -305,14 +307,19 @@ export function OpenChallengeScreen({ payload, entry, onAccept, onShareCompleted
           </button>
         </>
       ) : null}
-      {onAndroidWeb ? (
-        <a className="btn-outline challenge-link-btn" href={androidIntentUrl(payload, window.location.href)}>
-          OPEN IN THE C24 CARDIO APP
+      {!inBrowser ? (
+        <button type="button" className="btn-primary" onClick={onAccept}>
+          {status === 'expired' ? 'DO IT ANYWAY' : 'ACCEPT THE CHALLENGE'}
+        </button>
+      ) : onAndroidWeb ? (
+        // In a browser the challenge only opens in the app (no web workout).
+        // If the app is not installed, Android goes to its Play Store page.
+        <a className="btn-primary challenge-link-btn" href={androidIntentUrl(payload, PLAY_STORE_URL)}>
+          ACCEPT THE CHALLENGE
         </a>
-      ) : null}
-      <button type="button" className="btn-primary" onClick={onAccept}>
-        {status === 'expired' ? 'DO IT ANYWAY' : 'ACCEPT THE CHALLENGE'}
-      </button>
+      ) : (
+        <p className="challenge-note">Open this link on your Android phone with the C24 Cardio app to accept the challenge.</p>
+      )}
     </Frame>
   )
 }
