@@ -5,8 +5,8 @@ import logoUrl from './assets/brand/c24-logo.png'
 import { payloadFromUrl } from './challenge/challenge.js'
 import './Intro.css'
 
-const SHOW_MS = 1200
-const FADE_MS = 250
+const SHOW_MS = 1750
+const FADE_MS = 450
 
 // Quick "WELCOME, CHAMP" intro shown once per app start (not when returning
 // from the background). Tap to skip. Skipped when a challenge link opened the app.
@@ -40,8 +40,8 @@ export function Intro() {
         <span className="intro-ring" />
         <span className="intro-ring is-second" />
         <img className="intro-logo" src={logoUrl} alt="" />
+        <p className="intro-text">WELCOME, CHAMP</p>
       </div>
-      <p className="intro-text">WELCOME, CHAMP</p>
     </div>
   )
 }
