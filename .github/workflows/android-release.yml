@@ -88,7 +88,10 @@ jobs:
         env:
           KEYSTORE_B64: ${{ secrets.C24_UPLOAD_KEYSTORE_BASE64 }}
         run: |
-          if [ -z "$KEYSTORE_B64" ]; then echo "Upload key secrets are not set"; exit 1; fi
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "No upload key secrets: building an UNSIGNED bundle to sign on the owner's machine."
+            exit 0
+          fi
           echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
           cat >> android/app/build.gradle <<'GRADLE'
 
@@ -121,6 +124,7 @@ jobs:
       - name: Check the bundle is signed
         run: |
           AAB=android/app/build/outputs/bundle/release/app-release.aab
+          [ -f "$RUNNER_TEMP/upload.jks" ] || { echo "unsigned bundle"; exit 0; }
           jarsigner -verify "$AAB" | tail -1
           keytool -printcert -jarfile "$AAB" | grep -E "SHA256|Owner" | head -2
           rm -f "$RUNNER_TEMP/upload.jks"
@@ -128,7 +132,8 @@ jobs:
       - name: Name the bundle
         id: aab
         run: |
-          NAME="c24-cardio-${GITHUB_SHA::7}-build${GITHUB_RUN_NUMBER}.aab"
+          SUFFIX=$([ -n "${{ secrets.C24_UPLOAD_KEYSTORE_BASE64 }}" ] && echo "" || echo "-unsigned")
+          NAME="c24-cardio-${GITHUB_SHA::7}-build${GITHUB_RUN_NUMBER}${SUFFIX}.aab"
           cp android/app/build/outputs/bundle/release/app-release.aab "$NAME"
           ls -la "$NAME"
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
