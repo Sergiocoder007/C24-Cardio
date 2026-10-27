@@ -202,11 +202,7 @@ function ChallengeSlider({ onOpen }) {
       <span
         ref={knob}
         className="challenge-entry-icon"
-        // Red corner → blue corner as it slides.
-        style={{
-          transform: `translateX(${x}px)`,
-          background: `color-mix(in srgb, #1e6bff ${Math.min(100, Math.round((x / 260) * 100))}%, #e5232b)`,
-        }}
+        style={{ transform: `translateX(${x}px)` }}
         aria-hidden="true"
       >
         <svg viewBox="0 0 24 24" width="18" height="18">

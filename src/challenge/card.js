@@ -20,9 +20,9 @@ import { formatDuration } from '../workout.js'
 export const CARD_WIDTH = 1080
 export const CARD_HEIGHT = 1350
 
-// Challenges use red corner / blue corner colours instead of the app's orange.
-const ORANGE = '#e5232b'
-const ORANGE_SOFT = '#ff4a50'
+// Challenges use blue instead of the app's orange so they stand apart.
+const ORANGE = '#1e6bff'
+const ORANGE_SOFT = '#4d8cff'
 const BLUE = '#1e6bff'
 const BLUE_SOFT = '#4d8cff'
 const BG = '#050505'
@@ -74,9 +74,9 @@ function drawBackground(ctx) {
   ctx.fillStyle = BG
   ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
   const glow = ctx.createRadialGradient(CARD_WIDTH * 0.92, 80, 20, CARD_WIDTH * 0.92, 80, 900)
-  glow.addColorStop(0, 'rgba(229, 35, 43, 0.36)')
-  glow.addColorStop(0.45, 'rgba(229, 35, 43, 0.08)')
-  glow.addColorStop(1, 'rgba(229, 35, 43, 0)')
+  glow.addColorStop(0, 'rgba(30, 107, 255, 0.36)')
+  glow.addColorStop(0.45, 'rgba(30, 107, 255, 0.08)')
+  glow.addColorStop(1, 'rgba(30, 107, 255, 0)')
   ctx.fillStyle = glow
   ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
   const low = ctx.createRadialGradient(0, CARD_HEIGHT, 10, 0, CARD_HEIGHT, 700)
@@ -91,7 +91,7 @@ function drawBackground(ctx) {
   ctx.rect(0, CARD_HEIGHT - 26, CARD_WIDTH, 26)
   ctx.clip()
   for (let x = -40; x < CARD_WIDTH + 40; x += 56) {
-    ctx.fillStyle = x < CARD_WIDTH / 2 ? ORANGE : BLUE
+    ctx.fillStyle = BLUE
     ctx.beginPath()
     ctx.moveTo(x, CARD_HEIGHT)
     ctx.lineTo(x + 28, CARD_HEIGHT)
@@ -106,7 +106,7 @@ function drawBackground(ctx) {
   roundRect(ctx, 28, 28, CARD_WIDTH - 56, CARD_HEIGHT - 84, 44)
   ctx.lineWidth = 3
   const frame = ctx.createLinearGradient(0, 0, CARD_WIDTH, CARD_HEIGHT)
-  frame.addColorStop(0, 'rgba(229, 35, 43, 0.75)')
+  frame.addColorStop(0, 'rgba(30, 107, 255, 0.75)')
   frame.addColorStop(1, 'rgba(30, 107, 255, 0.75)')
   ctx.strokeStyle = frame
   ctx.stroke()
@@ -263,10 +263,10 @@ function drawCta(ctx, label, filled = true) {
   roundRect(ctx, LEFT, y, INNER, h, h / 2)
   if (filled) {
     const grad = ctx.createLinearGradient(LEFT, y, LEFT + INNER, y + h)
-    grad.addColorStop(0, ORANGE)
+    grad.addColorStop(0, ORANGE_SOFT)
     grad.addColorStop(1, BLUE)
     ctx.fillStyle = grad
-    ctx.shadowColor = 'rgba(120, 60, 200, 0.45)'
+    ctx.shadowColor = 'rgba(30, 107, 255, 0.5)'
     ctx.shadowBlur = 36
     ctx.fill()
     ctx.shadowBlur = 0
@@ -315,7 +315,7 @@ export function drawCompletionCard(ctx, { challenge: c, completedAt, logo }) {
   ctx.beginPath()
   ctx.arc(LEFT + 32, cy, 32, 0, Math.PI * 2)
   ctx.fillStyle = ORANGE
-  ctx.shadowColor = 'rgba(229, 35, 43, 0.6)'
+  ctx.shadowColor = 'rgba(30, 107, 255, 0.6)'
   ctx.shadowBlur = 28
   ctx.fill()
   ctx.shadowBlur = 0
