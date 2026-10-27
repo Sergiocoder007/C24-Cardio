@@ -157,8 +157,9 @@ public class WorkoutTimerPlugin extends Plugin implements WorkoutTimerService.Li
                 .putExtra(Intent.EXTRA_TEXT, text)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             send.setClipData(ClipData.newRawUri("", uri));
-            Intent chooser = Intent.createChooser(send, title).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            getActivity().startActivity(chooser);
+            Intent chooser = Intent.createChooser(send, title)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(chooser);
             call.resolve();
         } catch (Exception e) {
             call.reject("Could not open the share sheet", e);
