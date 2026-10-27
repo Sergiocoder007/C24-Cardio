@@ -1,0 +1,13 @@
+{
+  "name": "c24-workout-timer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "C24 Cardio background workout timer (Android foreground service with lock-screen notification).",
+  "main": "index.js",
+  "type": "module",
+  "capacitor": {
+    "android": {
+      "src": "android"
+    }
+  }
+}
