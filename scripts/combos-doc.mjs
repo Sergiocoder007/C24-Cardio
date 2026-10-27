@@ -71,7 +71,8 @@ clip file name.
 ## How calls are timed
 
 - A call only starts if the full call is spoken **and** there is time to throw it before the next
-  call: at least 1.2 s, or 0.3 s per strike for longer combos.
+  call: at least 1.2 s, or 0.3 s per strike for longer combos. At 8 s and 12 s each move is
+  called separately with a short pause; at 5 s the combo is one quick phrase.
 - No call overlaps a countdown beep, the 10-second warning, a bell, rest, the intro or the "next
   round" announcement (0.5 s of silence is kept either side of every beep). If nothing fits, the
   slot is skipped.
@@ -79,7 +80,7 @@ clip file name.
 
 `
 // Which combos are skipped at each pace, computed from the scheduler itself.
-md += '### Combos skipped at each pace\n\n'
+md += '### Combos longer than the pace\n\n'
 let any = false
 for (const pace of PACES) {
   const skipped = []
@@ -94,7 +95,7 @@ for (const pace of PACES) {
   }
   if (skipped.length) {
     any = true
-    md += `**Every ${pace} s:** ${skipped.length} combo${skipped.length === 1 ? '' : 's'} too long to call and throw, skipped at this pace:\n\n`
+    md += `**Every ${pace} s:** ${skipped.length} combo${skipped.length === 1 ? '' : 's'} longer than the pace; the next call waits until they are thrown:\n\n`
     for (const s of skipped) md += `- ${s}\n`
     md += '\n'
   } else {

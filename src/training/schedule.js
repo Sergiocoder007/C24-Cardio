@@ -1,6 +1,7 @@
 // Places combo calls inside each work round so they never overlap a beep,
 // the 10-second warning, a bell, or a rest period.
 import { MOVES, combosFor, displayText } from './combos.js'
+import { CLIP_MS } from './voiceClips.js'
 import { SOUND_IDS } from '../audio/soundBank.js'
 
 // How long each sound occupies (ms), including a little air around it.
@@ -40,10 +41,12 @@ export function usesPauses(paceSec) {
   return paceSec >= PAUSED_MIN_PACE_SEC
 }
 
+// Recorded clips are used when present; the syllable estimate covers the
+// phone's built-in voice. The longer of the two is used for timing.
 export function estimateSpeechMs(moves, paused = false) {
-  const syl = moves.reduce((n, id) => n + syllables(MOVES[id].say), 0)
-  if (paused) return 350 + syl * 250 + (moves.length - 1) * 450
-  return 350 + syl * 230 + (moves.length - 1) * 230
+  const gap = paused ? 450 : 230
+  const words = moves.reduce((n, id) => n + Math.max(syllables(MOVES[id].say) * (paused ? 250 : 230), CLIP_MS[id] ?? 0), 0)
+  return 350 + words + (moves.length - 1) * gap
 }
 
 // Moves joined with ';' are spoken one by one with a pause (the Android
@@ -88,14 +91,21 @@ export function buildComboSchedule(plan, { style, level, paceSec, seed = 1 }) {
   for (const phase of plan.phases) {
     if (phase.phase !== 'work') continue
     const end = phase.startMs + phase.durationMs
-    for (let at = phase.startMs + FIRST_CALL_MS; at < end; at += paceMs) {
-      // Only combos that can be said clearly and still leave time to throw them
-      // before the next call; otherwise this slot is skipped.
-      const fits = pool
+    let at = phase.startMs + FIRST_CALL_MS
+    while (at < end) {
+      const all = pool
         .map((moves, index) => ({ moves, index, ms: estimateSpeechMs(moves, usesPauses(paceSec)) }))
-        .filter((o) => o.ms + throwMs(o.moves) <= paceMs && o.index !== last)
+        .filter((o) => o.index !== last)
         .filter((o) => at + o.ms <= end && !overlaps(at, at + o.ms, windows))
-      if (!fits.length) continue
+      // Prefer combos that can be said and thrown within the pace. If too few
+      // fit (long Advanced combos at 5 s), call a longer one and wait until it
+      // has been thrown before the next call.
+      const inPace = all.filter((o) => o.ms + throwMs(o.moves) <= paceMs)
+      const fits = inPace.length >= 3 ? inPace : all
+      if (!fits.length) {
+        at += paceMs
+        continue
+      }
       const pick = fits[Math.floor(random() * fits.length)]
       last = pick.index
       calls.push({
@@ -106,6 +116,7 @@ export function buildComboSchedule(plan, { style, level, paceSec, seed = 1 }) {
         display: displayText(pick.moves),
         round: phase.round,
       })
+      at += Math.max(paceMs, pick.ms + throwMs(pick.moves))
     }
   }
   return calls

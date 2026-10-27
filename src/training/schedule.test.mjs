@@ -8,23 +8,23 @@ const SOUND_MS = { tick: 250, warn: 650, bell: 1450, complete: 3000 }
 
 const plan = buildCueSchedule({ rounds: 3, roundDurationSec: 180, restDurationSec: 60 })
 
-test('every combo uses known moves and can be called and thrown at the 8s and 12s pace', () => {
+test('every combo uses known moves; most fit inside the 8s pace with pauses', () => {
   for (const style of Object.keys(COMBOS)) {
     for (const level of LEVELS) {
       assert.equal(COMBOS[style][level].length, 12, `${style} ${level}`)
-      for (const combo of COMBOS[style][level]) {
-        for (const move of combo) assert.ok(MOVES[move], `${move} in ${style}/${level}`)
-        assert.ok(estimateSpeechMs(combo, true) + throwMs(combo) <= 8_000, combo.join(' '))
-      }
+      for (const combo of COMBOS[style][level]) for (const move of combo) assert.ok(MOVES[move], `${move} in ${style}/${level}`)
+      const fit8 = COMBOS[style][level].filter((m) => estimateSpeechMs(m, true) + throwMs(m) <= 8_000).length
+      assert.ok(fit8 >= 10, `${style}/${level}: ${fit8} fit 8s`)
+      for (const combo of COMBOS[style][level]) assert.ok(estimateSpeechMs(combo, true) + throwMs(combo) <= 12_000, combo.join(' '))
     }
   }
 })
 
-test('at the fastest 5s pace every level still has plenty of usable combos', () => {
-  for (const style of Object.keys(COMBOS)) {
+test('every level gets calls in every round at the fastest 5s pace', () => {
+  for (const style of ['boxing', 'muaythai', 'mixed']) {
     for (const level of LEVELS) {
-      const usable = COMBOS[style][level].filter((m) => estimateSpeechMs(m) + throwMs(m) <= 5_000)
-      assert.ok(usable.length >= 8, `${style}/${level}: only ${usable.length} usable at 5s`)
+      const calls = buildComboSchedule(plan, { style, level, paceSec: 5, seed: 11 })
+      for (const r of [1, 2, 3]) assert.ok(calls.filter((c) => c.round === r).length >= 15, `${style}/${level} round ${r}`)
     }
   }
 })

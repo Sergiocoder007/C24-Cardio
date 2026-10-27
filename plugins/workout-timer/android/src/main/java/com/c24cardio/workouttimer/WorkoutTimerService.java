@@ -125,6 +125,57 @@ public class WorkoutTimerService extends Service {
         soundIds.put("warn", soundPool.load(this, R.raw.c24_warn, 1));
         soundIds.put("bell", soundPool.load(this, R.raw.c24_bell, 1));
         soundIds.put("complete", soundPool.load(this, R.raw.c24_complete, 1));
+        loadVoiceClips();
+    }
+
+    /** Recorded move calls (res/raw/c24v_<move>.mp3) with their lengths. */
+    private final Map<String, int[]> voiceClips = new HashMap<>();
+    private int voiceToken = 0;
+
+    private void loadVoiceClips() {
+        for (java.lang.reflect.Field f : R.raw.class.getFields()) {
+            String name = f.getName();
+            if (!name.startsWith("c24v_")) continue;
+            try {
+                int res = f.getInt(null);
+                int ms = 800;
+                try (android.content.res.AssetFileDescriptor afd = getResources().openRawResourceFd(res)) {
+                    android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+                    try {
+                        mmr.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                        String d = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);
+                        if (d != null) ms = Integer.parseInt(d);
+                    } finally {
+                        mmr.release();
+                    }
+                }
+                voiceClips.put(name, new int[] { soundPool.load(this, res, 1), ms });
+            } catch (Exception e) {
+                Log.w(TAG, "Voice clip not loaded: " + name, e);
+            }
+        }
+    }
+
+    /** Plays recorded clips back to back; returns false if any move has no loaded clip. */
+    private boolean playClips(String[] moves, long gapMs) {
+        int[][] clips = new int[moves.length][];
+        for (int i = 0; i < moves.length; i++) {
+            clips[i] = voiceClips.get("c24v_" + moves[i].trim().toLowerCase(Locale.US).replace(' ', '_'));
+            if (clips[i] == null || !loaded.contains(clips[i][0])) return false;
+        }
+        final int token = ++voiceToken;
+        requestSpeechFocus();
+        long at = 0;
+        for (int[] clip : clips) {
+            handler.postDelayed(() -> {
+                if (token == voiceToken && !muted) soundPool.play(clip[0], 1f, 1f, 1, 0, 1f);
+            }, at);
+            at += clip[1] + gapMs;
+        }
+        handler.postDelayed(() -> {
+            if (token == voiceToken) abandonSpeechFocus();
+        }, at);
+        return true;
     }
 
     @Override
@@ -289,6 +340,7 @@ public class WorkoutTimerService extends Service {
     }
 
     private void stopSound() {
+        voiceToken++;
         if (lastStream != 0) soundPool.stop(lastStream);
         if (tts != null) tts.stop();
     }
@@ -331,9 +383,14 @@ public class WorkoutTimerService extends Service {
 
     /** Pause between moves when the combo text separates them with ';' (8 s and 12 s paces). */
     private static final long MOVE_GAP_MS = 350;
+    /** Gap between recorded clips at the quick 5 s pace. */
+    private static final long QUICK_GAP_MS = 120;
 
     private void speak(String text) {
-        if (muted || tts == null || !ttsReady) return;
+        if (muted) return;
+        boolean paused = text.contains(";");
+        if (playClips(text.split("\\s*[;,]\\s*"), paused ? MOVE_GAP_MS : QUICK_GAP_MS)) return;
+        if (tts == null || !ttsReady) return;
         requestSpeechFocus();
         String id = "c24-" + SystemClock.elapsedRealtime();
         String[] moves = text.split(";\\s*");

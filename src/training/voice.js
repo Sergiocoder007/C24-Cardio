@@ -10,7 +10,8 @@
 
 import { workoutAudio } from '../audio/workoutAudio.js'
 
-const CLIP_GAP_MS = 90
+// Pause between clips: clear at the 8 s / 12 s paces (';'), short at 5 s.
+const CLIP_GAP_MS = { paused: 350, quick: 120 }
 let manifest = null
 let manifestLoading = null
 const decoded = new Map()
@@ -41,7 +42,7 @@ async function clipBuffer(ctx, file) {
   return buffer
 }
 
-async function playClips(moves) {
+async function playClips(moves, gapMs) {
   const ctx = workoutAudio.ctx
   if (!ctx || ctx.state !== 'running' || !manifest) return false
   if (!moves.every((m) => manifest[m])) return false
@@ -53,7 +54,7 @@ async function playClips(moves) {
       src.buffer = buffer
       src.connect(workoutAudio.limiter ?? ctx.destination)
       src.start(when)
-      when += buffer.duration + CLIP_GAP_MS / 1000
+      when += buffer.duration + gapMs / 1000
     }
     return true
   } catch {
@@ -81,7 +82,7 @@ function speakWithDevice(text) {
 }
 
 export async function speakCall(call) {
-  if (await playClips(call.moves)) return
+  if (await playClips(call.moves, call.text.includes(';') ? CLIP_GAP_MS.paused : CLIP_GAP_MS.quick)) return
   speakWithDevice(call.text)
 }
 

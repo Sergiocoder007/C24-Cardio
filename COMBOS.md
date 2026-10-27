@@ -44,23 +44,49 @@ clip file name.
 ## How calls are timed
 
 - A call only starts if the full call is spoken **and** there is time to throw it before the next
-  call: at least 1.2 s, or 0.3 s per strike for longer combos.
+  call: at least 1.2 s, or 0.3 s per strike for longer combos. At 8 s and 12 s each move is
+  called separately with a short pause; at 5 s the combo is one quick phrase.
 - No call overlaps a countdown beep, the 10-second warning, a bell, rest, the intro or the "next
   round" announcement (0.5 s of silence is kept either side of every beep). If nothing fits, the
   slot is skipped.
 - The same combo is never called twice in a row.
 
-### Combos skipped at each pace
+### Combos longer than the pace
 
-**Every 5 s:** 5 combos too long to call and throw, skipped at this pace:
+**Every 5 s:** 25 combos longer than the pace; the next call waits until they are thrown:
 
+- Boxing Intermediate: Jab, Cross, Lead uppercut, Cross
+- Boxing Advanced: Jab, Cross, Hook, Roll, Hook, Cross
+- Boxing Advanced: Slip, Slip, Cross, Hook, Rear uppercut
+- Boxing Advanced: Jab, Hook to body, Hook, Cross, Pivot
+- Boxing Advanced: Double jab, Overhand, Hook, Rear uppercut
 - Boxing Advanced: Jab, Cross, Lead uppercut, Rear hook, Step back
+- Boxing Advanced: Hook, Rear uppercut, Hook, Cross
 - Boxing Advanced: Jab to body, Cross, Hook to body, Hook, Cross
+- Boxing Advanced: Jab, Cross, Roll, Cross, Hook, Cross
+- Boxing Advanced: Slip, Rear uppercut, Hook, Cross, Roll
 - Boxing Advanced: Double jab, Cross, Hook, Rear uppercut, Hook
+- Boxing Advanced: Block, Cross, Hook, Cross, Pivot
+- Boxing Advanced: Overhand, Hook to body, Hook, Rear uppercut
 - Muay Thai Advanced: Jab, Cross, Hook, Low kick, Hook, Head kick
+- Muay Thai Advanced: Rear teep, Switch kick, Cross, Hook, Low kick
+- Muay Thai Advanced: Double jab, Cross, Switch knee, Rear elbow
+- Muay Thai Advanced: Check, Cross, Hook, Body kick, Teep
+- Muay Thai Advanced: Jab, Cross, Lead elbow, Rear elbow, Knee
+- Muay Thai Advanced: Low kick, Hook, Cross, Switch kick
+- Muay Thai Advanced: Clinch, Knee, Switch knee, Lead elbow, Teep
+- Muay Thai Advanced: Jab, Switch kick, Cross, Hook, Head kick
+- Muay Thai Advanced: Rear teep, Jab, Cross, Hook, Body kick
+- Muay Thai Advanced: Hook, Cross, Hook, Low kick, Cross
+- Muay Thai Advanced: Slip, Cross, Lead elbow, Knee, Teep
 - Muay Thai Advanced: Jab, Cross, Hook, Cross, Switch kick, Rear teep
 
-**Every 8 s:** all 72 combos fit.
+**Every 8 s:** 4 combos longer than the pace; the next call waits until they are thrown:
+
+- Boxing Advanced: Jab, Cross, Hook, Roll, Hook, Cross
+- Boxing Advanced: Jab, Cross, Roll, Cross, Hook, Cross
+- Muay Thai Advanced: Jab, Cross, Hook, Low kick, Hook, Head kick
+- Muay Thai Advanced: Jab, Cross, Hook, Cross, Switch kick, Rear teep
 
 **Every 12 s:** all 72 combos fit.
 
