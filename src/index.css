@@ -1,15 +1,22 @@
+/* C24 Cardio — orange & black. Matches the App Store build's screens. */
 :root {
-  --bg-deep: #070707;
-  --bg-charcoal: #111111;
-  --bg-panel: #161616;
-  --line: rgba(201, 162, 39, 0.28);
-  --gold: #c9a227;
-  --gold-bright: #e8c547;
-  --crimson: #8b1e1e;
-  --text: #f3efe4;
-  --muted: #9a9486;
-  --display: Impact, Haettenschweiler, 'Arial Narrow Bold', 'Franklin Gothic Medium', sans-serif;
-  --body: 'Segoe UI', system-ui, sans-serif;
+  --bg: #050505;
+  --panel: #0d0d0d;
+  --panel-2: #141414;
+  --chip: #1b1b1b;
+  --line: #262626;
+  --line-strong: #333333;
+  --orange: #ff6a00;
+  --orange-soft: #ff8533;
+  --orange-line: rgba(255, 106, 0, 0.85);
+  --orange-glow: rgba(255, 106, 0, 0.38);
+  --orange-haze: rgba(255, 106, 0, 0.14);
+  --text: #f4f4f4;
+  --muted: #9a9a9a;
+  --dim: #6b6b6b;
+  --on-orange: #0a0a0a;
+  --display: 'Oswald Variable', 'Oswald', 'Bebas Neue', 'DIN Condensed', 'Arial Narrow', Impact, sans-serif;
+  --track: 0.18em;
   color-scheme: dark;
 }
 
@@ -24,24 +31,113 @@ body,
 #root {
   margin: 0;
   min-height: 100dvh;
-  background: var(--bg-deep);
+  background: var(--bg);
   color: var(--text);
-  font-family: var(--body);
+  font-family: var(--display);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  min-height: 100dvh;
-  min-height: 100svh;
+  overscroll-behavior: none;
 }
 
 button {
   font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
 }
 
 img,
 svg {
   display: block;
   max-width: 100%;
+}
+
+.screen-frame {
+  width: min(100%, 480px);
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding-top: max(16px, env(safe-area-inset-top, 0px));
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-primary,
+.btn-outline {
+  width: 100%;
+  min-height: 56px;
+  border-radius: 0;
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+}
+
+.btn-primary {
+  border: 0;
+  background: var(--orange);
+  color: var(--on-orange);
+  box-shadow: 0 0 28px var(--orange-glow);
+}
+
+.btn-primary:active {
+  background: var(--orange-soft);
+}
+
+.btn-primary:disabled {
+  background: #2a1606;
+  color: #4a2a10;
+  box-shadow: none;
+}
+
+.btn-outline {
+  border: 1px solid rgba(255, 106, 0, 0.35);
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.btn-outline:active {
+  border-color: var(--orange);
+}
+
+.brand-mark {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  object-fit: contain;
+}
+
+.brand-word {
+  margin: 0;
+  color: var(--orange);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {
