@@ -90,3 +90,15 @@ The full Android checklist (background, spoken combos, notifications, completion
 - [ ] Android back button mid-workout shows "End workout?"; on Progress it returns to setup
 - [ ] Completed workout appears in Your Training, streak and Progress; a stopped workout does not
 - [ ] History survives closing and reopening the app
+
+## C24 Challenges
+
+Setup screen › **C24 CHALLENGES**: pick type, difficulty, rounds, round and rest time and a
+deadline, then **CREATE CHALLENGE**. The app draws a 1080×1350 PNG card and **SHARE CHALLENGE**
+opens the share sheet with the card and a link `https://c24cardio.fit/challenge?c=<code>`.
+The link holds the whole workout (no server); `src/challenge/challenge.js` documents the format.
+Opening the link loads the exact workout; finishing it offers a **CHALLENGE COMPLETED** card
+(self-reported). The Android app also opens `c24cardio://challenge?c=…` links.
+For links to open the app or the web version, `c24cardio.fit` must be redeployed from this
+branch (`public/_redirects` routes `/challenge`). Tapping the https link opens the app directly
+only after `/.well-known/assetlinks.json` with the release key is hosted.
