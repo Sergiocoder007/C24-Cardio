@@ -1,6 +1,6 @@
 // Places combo calls inside each work round so they never overlap a beep,
 // the 10-second warning, a bell, or a rest period.
-import { combosFor, displayText, spokenText } from './combos.js'
+import { MOVES, combosFor, displayText, spokenText } from './combos.js'
 import { SOUND_IDS } from '../audio/soundBank.js'
 
 // How long each sound occupies (ms), including a little air around it.
@@ -10,13 +10,30 @@ const SOUND_MS = {
   [SOUND_IDS.BELL]: 1450,
   [SOUND_IDS.COMPLETE]: 3000,
 }
-const GAP_MS = 300 // silence kept between a call and any beep
+export const BEEP_GAP_MS = 500 // silence between a call and any beep, warning or bell
+export const AFTER_CALL_MS = 1200 // minimum time to throw a combo before the next call
+const THROW_MS_PER_MOVE = 300 // longer combos get more time to throw
+
+// Time the athlete needs after the call to actually throw the combo.
+export function throwMs(moves) {
+  return Math.max(AFTER_CALL_MS, moves.length * THROW_MS_PER_MOVE)
+}
 const FIRST_CALL_MS = 2500 // after the round starts (lets the bell finish)
 
-// Rough spoken length at the app's speech rate.
+// Syllables in a spoken phrase (vowel groups; "y" counts after a consonant).
+export function syllables(text) {
+  return text
+    .toLowerCase()
+    .split(/[^a-z]+/)
+    .filter(Boolean)
+    .reduce((n, word) => n + Math.max(1, (word.match(/[aeiou]+|(?<=[^aeiou])y/g) ?? []).length), 0)
+}
+
+// Conservative spoken length at the app's speech rate (1.15x): about 230 ms
+// per syllable plus a short pause at each comma.
 export function estimateSpeechMs(moves) {
-  const words = moves.reduce((n, id) => n + id.split('-').length, 0)
-  return 350 + words * 380 + (moves.length - 1) * 140
+  const syl = moves.reduce((n, id) => n + syllables(MOVES[id].say), 0)
+  return 350 + syl * 230 + (moves.length - 1) * 230
 }
 
 function mulberry32(seed) {
@@ -31,7 +48,7 @@ function mulberry32(seed) {
 }
 
 function busyWindows(cues) {
-  return cues.map((c) => [c.at - GAP_MS, c.at + (SOUND_MS[c.id] ?? 500) + GAP_MS])
+  return cues.map((c) => [c.at - BEEP_GAP_MS, c.at + (SOUND_MS[c.id] ?? 500) + BEEP_GAP_MS])
 }
 
 function overlaps(start, end, windows) {
@@ -56,10 +73,11 @@ export function buildComboSchedule(plan, { style, level, paceSec, seed = 1 }) {
     if (phase.phase !== 'work') continue
     const end = phase.startMs + phase.durationMs
     for (let at = phase.startMs + FIRST_CALL_MS; at < end; at += paceMs) {
-      // Combos short enough to finish well before the next call.
+      // Only combos that can be said clearly and still leave time to throw them
+      // before the next call; otherwise this slot is skipped.
       const fits = pool
         .map((moves, index) => ({ moves, index, ms: estimateSpeechMs(moves) }))
-        .filter((o) => o.ms <= paceMs - 600 && o.index !== last)
+        .filter((o) => o.ms + throwMs(o.moves) <= paceMs && o.index !== last)
         .filter((o) => at + o.ms <= end && !overlaps(at, at + o.ms, windows))
       if (!fits.length) continue
       const pick = fits[Math.floor(random() * fits.length)]

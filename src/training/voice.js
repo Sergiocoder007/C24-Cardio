@@ -2,8 +2,9 @@
 // On Android with the background service, the service speaks instead.
 //
 // Recorded voice (ElevenLabs): put one file per move in public/voice/ named by
-// move id (e.g. public/voice/body-hook.mp3) and list them in
-// public/voice/manifest.json as { "jab": "jab.mp3", ... }. When every move of a
+// move id (e.g. public/voice/hook-body.mp3) and list them in
+// public/voice/manifest.json (start from manifest.example.json, which is
+// generated from the move list). When every move of a
 // combo has a clip, the clips are played back to back; otherwise the device's
 // built-in speech is used.
 
