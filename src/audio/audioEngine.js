@@ -5,7 +5,7 @@
 // in Node regression tests with a fake AudioContext.
 //
 // Lifecycle rules this engine enforces (each one maps to a defect found in the
-// original implementation — see docs/AUDIT.md "Audio investigation"):
+// original implementation — see AUDIT.md, section C):
 //   1. Only one unlock/resume attempt is in flight at a time. While audio is
 //      locked, only the most recent cue is remembered, and it is dropped if it
 //      is stale when audio comes back — no bursts of old beeps.
