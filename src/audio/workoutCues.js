@@ -130,3 +130,48 @@ export function resolveWorkoutCues(prev, next) {
 
   return []
 }
+
+// Turns a stream of timer snapshots into sound requests, each fired at most
+// once per workout. Shared by the React hook and the regression tests.
+export function snapshotForCues(timer, sawRunning) {
+  return {
+    status: timer.status,
+    phase: timer.phase,
+    round: timer.round,
+    remainingMs: timer.remainingMs,
+    elapsedMs: timer.elapsedMs,
+    paused: timer.paused,
+    display: timer.beat?.display ?? null,
+    confirmStop: timer.confirmStop,
+    sawRunning,
+  }
+}
+
+export function createCueTracker() {
+  let last = {
+    status: 'running',
+    phase: null,
+    round: 1,
+    remainingMs: Number.POSITIVE_INFINITY,
+    elapsedMs: 0,
+    paused: false,
+    display: null,
+    confirmStop: false,
+    sawRunning: false,
+  }
+  let sawRunning = false
+  const fired = new Set()
+  return {
+    next(timer) {
+      if (timer.status === 'running') sawRunning = true
+      const snapshot = snapshotForCues(timer, sawRunning)
+      const cues = resolveWorkoutCues(last, snapshot).filter((item) => {
+        if (fired.has(item.key)) return false
+        fired.add(item.key)
+        return true
+      })
+      last = snapshot
+      return cues
+    },
+  }
+}

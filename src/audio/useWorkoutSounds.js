@@ -1,60 +1,59 @@
-import { useEffect, useRef } from 'react'
-import { resolveWorkoutCues } from './workoutCues.js'
-import { playWorkoutSound, setWorkoutAudioEnabled, stopWorkoutSounds } from './workoutAudio.js'
+import { useEffect, useRef, useState } from 'react'
+import { createCueTracker } from './workoutCues.js'
+import {
+  playWorkoutSound,
+  resumeWorkoutAudioQuietly,
+  setWorkoutAudioEnabled,
+  stopWorkoutSounds,
+  unlockWorkoutAudio,
+  workoutAudio,
+} from './workoutAudio.js'
 
-function snapshotOf(timer, sawRunning) {
-  return {
-    status: timer.status,
-    phase: timer.phase,
-    round: timer.round,
-    remainingMs: timer.remainingMs,
-    elapsedMs: timer.elapsedMs,
-    paused: timer.paused,
-    display: timer.beat?.display ?? null,
-    confirmStop: timer.confirmStop,
-    sawRunning,
-  }
-}
+const GESTURE_EVENTS = ['pointerup', 'touchend', 'keydown']
 
+// Plays the workout's sound cues and keeps audio alive for the whole session.
+// Returns { needsTap } — true when the system has taken audio away and only a
+// tap can bring it back (shown as a banner on the workout screen).
 export function useWorkoutSounds(timer, soundOn) {
-  const last = useRef({
-    status: 'running',
-    phase: null,
-    round: 1,
-    remainingMs: Number.POSITIVE_INFINITY,
-    elapsedMs: 0,
-    paused: false,
-    display: null,
-    confirmStop: false,
-    sawRunning: false,
-  })
-  const fired = useRef(new Set())
-  const sawRunning = useRef(false)
+  const tracker = useRef(null)
+  if (!tracker.current) tracker.current = createCueTracker()
+  const [audio, setAudio] = useState(() => workoutAudio.status())
+
+  useEffect(() => workoutAudio.subscribe(setAudio), [])
 
   useEffect(() => {
     setWorkoutAudioEnabled(soundOn)
     if (!soundOn) stopWorkoutSounds()
   }, [soundOn])
 
+  // Any tap on the screen during a workout is a chance to recover audio that
+  // the OS suspended (screen lock, phone call, Siri, another app's audio).
   useEffect(() => {
-    if (timer.status === 'stopped' || timer.confirmStop) {
-      stopWorkoutSounds()
+    if (!soundOn) return undefined
+    const onGesture = () => {
+      void unlockWorkoutAudio()
     }
-    if (timer.status === 'running') sawRunning.current = true
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void resumeWorkoutAudioQuietly()
+    }
+    for (const type of GESTURE_EVENTS) document.addEventListener(type, onGesture, true)
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('pageshow', onVisible)
+    return () => {
+      for (const type of GESTURE_EVENTS) document.removeEventListener(type, onGesture, true)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('pageshow', onVisible)
+    }
+  }, [soundOn])
 
-    const next = snapshotOf(timer, sawRunning.current)
-    const cues = resolveWorkoutCues(last.current, next)
-
+  useEffect(() => {
+    if (timer.status === 'stopped' || timer.confirmStop) stopWorkoutSounds()
+    const cues = tracker.current.next(timer)
+    if (!soundOn) return
     for (const item of cues) {
-      if (fired.current.has(item.key)) continue
-      fired.current.add(item.key)
-      if (!soundOn) continue
       if (item.exclusive) stopWorkoutSounds()
       playWorkoutSound(item.id, { key: item.key })
     }
-
-    last.current = next
-    return undefined
   }, [
     soundOn,
     timer.beat?.display,
@@ -66,4 +65,8 @@ export function useWorkoutSounds(timer, soundOn) {
     timer.round,
     timer.status,
   ])
+
+  useEffect(() => () => stopWorkoutSounds(), [])
+
+  return { needsTap: soundOn && audio.needsGesture }
 }

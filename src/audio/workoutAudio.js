@@ -1,186 +1,60 @@
-import { MASTER_GAIN_CAP, SAMPLE_RATE, SOUND_BANK, SOUND_IDS, SOUND_LEVELS, SOUND_PRIORITY } from './soundBank'
+// Browser adapter for the workout audio engine (see audioEngine.js).
 import warningToneUrl from '../assets/warning-10s.wav?url'
+import { createWorkoutAudioEngine } from './audioEngine.js'
 import { generateWarningToneSamples, WARNING_TONE_SAMPLE_RATE } from './warningToneAsset.js'
 
 function logAudioError(action, error) {
-  if (import.meta.env.DEV) console.warn(`[c24-audio] ${action} failed`, error)
+  // Kept in production builds: these are rare and are the only trace when a
+  // device silences the app. Inspect via `window.__c24Audio.diagnostics()`.
+  console.warn(`[c24-audio] ${action} failed`, error)
 }
 
 function setPlaybackAudioSession() {
   try {
-    const session = navigator.audioSession
+    const session = typeof navigator !== 'undefined' ? navigator.audioSession : null
     if (session && session.type !== 'playback') session.type = 'playback'
   } catch (error) {
     logAudioError('audioSession', error)
   }
 }
 
-function contextNeedsResume(ctx) {
-  return ctx.state === 'suspended' || ctx.state === 'interrupted'
-}
-
 function createContext() {
+  if (typeof window === 'undefined') return null
   const Ctor = window.AudioContext || window.webkitAudioContext
   if (!Ctor) return null
-  return new Ctor()
-}
-
-function pcmToBuffer(ctx, pcm, sampleRate = SAMPLE_RATE) {
-  const buffer = ctx.createBuffer(1, pcm.length, sampleRate)
-  buffer.getChannelData(0).set(pcm)
-  return buffer
-}
-
-class WorkoutAudio {
-  constructor() {
-    this.enabled = true
-    this.ctx = null
-    this.buffers = new Map()
-    this.current = null
-    this.currentId = null
-    this.master = null
-    this.limiter = null
-    this.lastPlay = { id: null, at: 0, key: null }
-  }
-
-  setEnabled(enabled) {
-    this.enabled = enabled
-    if (!enabled) this.stopAll()
-  }
-
-  connectGraph() {
-    this.limiter = this.ctx.createDynamicsCompressor()
-    this.limiter.threshold.value = -8
-    this.limiter.knee.value = 6
-    this.limiter.ratio.value = 6
-    this.limiter.attack.value = 0.003
-    this.limiter.release.value = 0.16
-    this.master = this.ctx.createGain()
-    this.master.gain.value = MASTER_GAIN_CAP
-    this.limiter.connect(this.master)
-    this.master.connect(this.ctx.destination)
-  }
-
-  resumeContext() {
-    if (!this.ctx || !contextNeedsResume(this.ctx)) return Promise.resolve(true)
-    let resumePromise
-    try {
-      resumePromise = this.ctx.resume()
-    } catch (error) {
-      logAudioError('resume', error)
-      return Promise.resolve(false)
-    }
-    return Promise.resolve(resumePromise)
-      .then(() => !contextNeedsResume(this.ctx))
-      .catch((error) => {
-        logAudioError('resume', error)
-        return false
-      })
-  }
-
-  async unlock() {
-    setPlaybackAudioSession()
-    if (!this.ctx) {
-      this.ctx = createContext()
-      if (!this.ctx) return false
-      this.connectGraph()
-      this.ctx.addEventListener('statechange', () => {
-        if (this.ctx?.state === 'running') setPlaybackAudioSession()
-      })
-    }
-    const resumed = await this.resumeContext()
-    if (!resumed) return false
-    await this.primeBuffers()
-    return this.ctx.state === 'running'
-  }
-
-  async primeBuffers() {
-    if (!this.ctx) return
-    for (const [id, build] of Object.entries(SOUND_BANK)) {
-      if (!this.buffers.has(id)) this.buffers.set(id, pcmToBuffer(this.ctx, build()))
-    }
-    if (this.buffers.has(SOUND_IDS.WARN)) return
-    try {
-      const response = await fetch(warningToneUrl)
-      const data = await response.arrayBuffer()
-      const decoded = await this.ctx.decodeAudioData(data.slice(0))
-      this.buffers.set(SOUND_IDS.WARN, decoded)
-    } catch {
-      this.buffers.set(
-        SOUND_IDS.WARN,
-        pcmToBuffer(this.ctx, generateWarningToneSamples(), WARNING_TONE_SAMPLE_RATE),
-      )
-    }
-  }
-
-  stop() {
-    if (!this.current) return
-    try {
-      this.current.onended = null
-      this.current.stop()
-    } catch {
-      // already stopped
-    }
-    this.current = null
-    this.currentId = null
-  }
-
-  stopAll() {
-    this.stop()
-  }
-
-  play(id, { key = id } = {}) {
-    if (!this.enabled || !id) return
-    setPlaybackAudioSession()
-    const now = Date.now()
-    if (this.lastPlay.key === key && now - this.lastPlay.at < 150) return
-
-    if (!this.ctx || contextNeedsResume(this.ctx) || !this.buffers.has(id)) {
-      void this.unlock().then((ok) => {
-        if (ok) this.play(id, { key })
-      })
-      return
-    }
-
-    if (this.current) {
-      const currentRank = SOUND_PRIORITY[this.currentId] ?? 0
-      const nextRank = SOUND_PRIORITY[id] ?? 0
-      if (nextRank < currentRank) return
-      this.stop()
-    }
-
-    const buffer = this.buffers.get(id)
-    if (!buffer || !this.limiter) return
-
-    const source = this.ctx.createBufferSource()
-    const voice = this.ctx.createGain()
-    voice.gain.value = Math.min(1, SOUND_LEVELS[id] ?? 0.5)
-    source.buffer = buffer
-    source.connect(voice)
-    voice.connect(this.limiter)
-    source.onended = () => {
-      if (this.current === source) {
-        this.current = null
-        this.currentId = null
-      }
-    }
-    this.current = source
-    this.currentId = id
-    this.lastPlay = { id, at: Date.now(), key }
-    try {
-      source.start()
-    } catch (error) {
-      logAudioError('start', error)
-      this.current = null
-      this.currentId = null
-    }
+  try {
+    return new Ctor()
+  } catch (error) {
+    logAudioError('create-context', error)
+    return null
   }
 }
 
-export const workoutAudio = new WorkoutAudio()
+async function loadWarningBuffer(ctx, pcmToBuffer) {
+  try {
+    const response = await fetch(warningToneUrl)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.arrayBuffer()
+    return await ctx.decodeAudioData(data.slice(0))
+  } catch (error) {
+    logAudioError('warning-tone-fetch', error)
+    return pcmToBuffer(ctx, generateWarningToneSamples(), WARNING_TONE_SAMPLE_RATE)
+  }
+}
+
+export const workoutAudio = createWorkoutAudioEngine({
+  createContext,
+  loadWarningBuffer,
+  log: logAudioError,
+  setPlaybackSession: setPlaybackAudioSession,
+})
+
+if (typeof window !== 'undefined') {
+  window.__c24Audio = { diagnostics: () => workoutAudio.diagnostics() }
+}
 
 export function unlockWorkoutAudio() {
-  return workoutAudio.unlock()
+  return workoutAudio.handleUserGesture()
 }
 
 export function setWorkoutAudioEnabled(enabled) {
@@ -193,4 +67,11 @@ export function stopWorkoutSounds() {
 
 export function playWorkoutSound(id, options) {
   workoutAudio.play(id, options)
+}
+
+export function resumeWorkoutAudioQuietly() {
+  // No gesture available (e.g. app returned to foreground). Works where the
+  // platform allows it; otherwise the engine flags needsGesture.
+  if (!workoutAudio.enabled) return Promise.resolve(false)
+  return workoutAudio.unlock()
 }
