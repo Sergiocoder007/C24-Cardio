@@ -140,7 +140,7 @@ jobs:
         run: |
           AAPT2=$(ls -d "${ANDROID_HOME}"/build-tools/*/aapt2 | tail -1)
           "$AAPT2" dump xmltree --file AndroidManifest.xml android/app/build/outputs/apk/debug/app-debug.apk > manifest.txt
-          for needle in WorkoutTimerService FOREGROUND_SERVICE_MEDIA_PLAYBACK POST_NOTIFICATIONS WAKE_LOCK 'foregroundServiceType' C24ShareProvider c24cardio '"/challenge"'; do
+          for needle in WorkoutTimerService FOREGROUND_SERVICE_MEDIA_PLAYBACK POST_NOTIFICATIONS WAKE_LOCK 'foregroundServiceType' C24ShareProvider c24cardio; do
             grep -q "$needle" manifest.txt || { echo "missing in manifest: $needle"; exit 1; }
           done
           grep -E "uses-permission|service|foregroundServiceType|targetSdkVersion|minSdkVersion" -A1 manifest.txt | grep -E 'name=|Type|Sdk' | head -40

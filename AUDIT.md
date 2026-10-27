@@ -124,7 +124,7 @@ Already present, so not proposed: custom rounds, work and rest durations, sound 
 - Run `scripts/android-setup.sh`, then fix any Vite, Oxlint or Gradle issues it reports.
 - Device checklist on iPhone and Android, especially music playing alongside, a call mid-round, and the lock screen.
 - Rebuild iOS from this branch (`npx cap add ios`, then copy over the existing bundle id and signing in Xcode) so both stores ship the same code with the audio fix.
-- Decide whether `c24cardio.fit` should be redeployed from this branch.
+- Turn on GitHub Pages (branch gh-pages) for the privacy policy and challenge links.
 
 ## I. Next steps to Google Play
 
@@ -132,5 +132,5 @@ Already present, so not proposed: custom rounds, work and rest durations, sound 
 2. Install the debug APK (`adb install -r …`) and run the README device checklist.
 3. Commit the generated `android/` folder and open a pull request from `orange-rebuild` to `main`.
 4. In Android Studio: **Generate Signed App Bundle**, create and back up an upload key, then build the `.aab`.
-5. In Play Console: create the app (`com.c24cardio.app`), upload to **Internal testing**, complete Data safety ("no data collected"), content rating, store listing and a support email. For the privacy policy URL, use `https://c24cardio.fit/privacy-policy/`, but redeploy the site from this branch first: the live site still serves the old policy.
+5. In Play Console: create the app (`com.c24cardio.app`), upload to **Internal testing**, complete Data safety ("no data collected"), content rating, store listing and a support email. For the privacy policy URL, use `https://sergiocoder007.github.io/C24-Cardio/privacy-policy/` (GitHub Pages, see README).
 6. Promote to production after testing on at least one real device.

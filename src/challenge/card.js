@@ -237,7 +237,7 @@ function drawFooter(ctx, code, line2) {
   spacedText(ctx, `#${code.toUpperCase()}`, LEFT, y + 112, 8)
   ctx.fillStyle = BLUE_SOFT
   ctx.font = font(500, 32)
-  spacedText(ctx, 'c24cardio.fit', CARD_WIDTH - LEFT, y + 62, 2, 'right')
+  spacedText(ctx, 'C24 CARDIO APP', CARD_WIDTH - LEFT, y + 62, 4, 'right')
   ctx.fillStyle = MUTED
   ctx.font = font(400, 26)
   spacedText(ctx, line2, CARD_WIDTH - LEFT, y + 108, 2, 'right')

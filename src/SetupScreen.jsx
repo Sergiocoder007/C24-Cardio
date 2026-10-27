@@ -353,7 +353,7 @@ export function SetupScreen({ setup, onChange, training, onTrainingChange, stats
           START WORKOUT <span aria-hidden="true">›</span>
         </button>
         <footer className="setup-footer">
-          <a href="/privacy-policy/">Privacy Policy</a>
+          <a href={`${import.meta.env.BASE_URL}privacy-policy/`}>Privacy Policy</a>
         </footer>
       </div>
     </main>

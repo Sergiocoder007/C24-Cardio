@@ -3,7 +3,7 @@
 // self-contained link, so there is no server or database: everything needed
 // to load the workout is in the link itself.
 //
-// Link:    https://c24cardio.fit/challenge?c=<payload>
+// Link:    https://sergiocoder007.github.io/C24-Cardio/challenge/?c=<payload>  (GitHub Pages, free hosting)
 // Payload: 1.<style>.<rounds>.<roundSec>.<restSec>.<level>.<pace>.<yyyymmdd>.<id>.<from>.<check>
 //   style  b = Boxing, m = Muay Thai, x = Both
 //   level  b = Beginner, i = Intermediate, a = Advanced
@@ -18,8 +18,8 @@ import { LEVELS, PACES, STYLES } from '../training/combos.js'
 import { REST_DURATION_LIMITS, ROUND_COUNT_LIMITS, ROUND_DURATION_LIMITS, formatDuration } from '../workout.js'
 
 export const CHALLENGE_VERSION = 1
-export const SHARE_ORIGIN = 'https://c24cardio.fit'
-export const SHARE_PATH = '/challenge'
+export const SHARE_ORIGIN = 'https://sergiocoder007.github.io/C24-Cardio'
+export const SHARE_PATH = '/challenge/'
 export const APP_SCHEME = 'c24cardio'
 export const MAX_NAME_LENGTH = 24
 export const MAX_DEADLINE_DAYS = 365
@@ -257,7 +257,7 @@ export function androidIntentUrl(payload, fallbackUrl) {
 }
 
 // Finds the challenge payload in any link that can open the app:
-//   https://c24cardio.fit/challenge?c=…, …/challenge#c=…, c24cardio://challenge?c=…
+//   …/C24-Cardio/challenge/?c=…, …/challenge#c=…, c24cardio://challenge?c=…
 // Returns the payload string or null (not a challenge link).
 export function payloadFromUrl(url) {
   if (typeof url !== 'string' || !url) return null
@@ -272,7 +272,7 @@ export function payloadFromUrl(url) {
   const payload = fromQuery ?? fromHash
   if (!payload) return null
   const isApp = parsed.protocol === `${APP_SCHEME}:`
-  const isChallengePath = /^\/challenge\/?$/.test(parsed.pathname) || (isApp && /^\/?$/.test(parsed.pathname))
+  const isChallengePath = /(^|\/)challenge\/?$/.test(parsed.pathname) || (isApp && /^\/?$/.test(parsed.pathname))
   const isChallengeHost = isApp ? parsed.hostname === 'challenge' || parsed.hostname === '' : true
   return isChallengePath && isChallengeHost ? payload : null
 }

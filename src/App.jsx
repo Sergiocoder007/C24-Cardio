@@ -63,7 +63,7 @@ function useIncomingChallenge(onPayload) {
     const payload = typeof window !== 'undefined' ? payloadFromUrl(window.location.href) : null
     if (payload) {
       onPayload(payload)
-      window.history.replaceState(null, '', '/')
+      window.history.replaceState(null, '', import.meta.env.BASE_URL ?? '/')
     }
     if (!Capacitor.isNativePlatform()) return undefined
     let listener = null

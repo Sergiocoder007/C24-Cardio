@@ -8,5 +8,7 @@ const warningPath = fileURLToPath(new URL('./src/assets/warning-10s.wav', import
 writeFileSync(warningPath, Buffer.from(createWarningToneWavBuffer()))
 
 export default defineConfig({
+  // GitHub Pages serves the web app under /C24-Cardio/; the Android app uses /.
+  base: process.env.PAGES_BASE || '/',
   plugins: [react()],
 })

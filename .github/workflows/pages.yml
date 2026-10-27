@@ -1,0 +1,48 @@
+name: Web app and privacy policy (GitHub Pages)
+
+# Builds the web app (privacy policy at /privacy-policy/, challenge links at
+# /challenge/) into the gh-pages branch. GitHub Pages serves that branch at
+# https://sergiocoder007.github.io/C24-Cardio/ once Settings › Pages › Branch
+# is set to gh-pages. Never touches main.
+on:
+  push:
+    branches: [orange-rebuild]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: write # push the built site to the gh-pages branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - name: Build for /C24-Cardio/
+        run: PAGES_BASE=/C24-Cardio/ npm run build
+      - name: Challenge route and static hosting files
+        run: |
+          mkdir -p dist/challenge
+          cp dist/index.html dist/challenge/index.html
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+          rm -f dist/_redirects
+          test -f dist/privacy-policy/index.html
+      - name: Publish to the gh-pages branch
+        run: |
+          cd dist
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Site from ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages

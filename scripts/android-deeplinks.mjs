@@ -2,9 +2,7 @@
 // (android/ is recreated on every CI build, so this runs after `cap add`).
 //   c24cardio://challenge?c=…           always opens the app (used by the web
 //                                        page's "Open in the app" button)
-//   https://c24cardio.fit/challenge?c=…  opens the app directly once the site
-//                                        serves /.well-known/assetlinks.json;
-//                                        until then Android opens the browser.
+// Shared https links open the web page, which offers "Open in the C24 Cardio app".
 // Usage: node scripts/android-deeplinks.mjs [path/to/AndroidManifest.xml]
 import { readFileSync, writeFileSync } from 'node:fs'
 
@@ -20,12 +18,6 @@ const filters = `
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="c24cardio" android:host="challenge" />
-            </intent-filter>
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="c24cardio.fit" android:path="/challenge" />
             </intent-filter>
 `
 // Insert right after the launcher intent-filter of the main activity.

@@ -95,10 +95,15 @@ The full Android checklist (background, spoken combos, notifications, completion
 
 Setup screen › **C24 CHALLENGES**: pick type, difficulty, rounds, round and rest time and a
 deadline, then **CREATE CHALLENGE**. The app draws a 1080×1350 PNG card and **SHARE CHALLENGE**
-opens the share sheet with the card and a link `https://c24cardio.fit/challenge?c=<code>`.
-The link holds the whole workout (no server); `src/challenge/challenge.js` documents the format.
-Opening the link loads the exact workout; finishing it offers a **CHALLENGE COMPLETED** card
-(self-reported). The Android app also opens `c24cardio://challenge?c=…` links.
-For links to open the app or the web version, `c24cardio.fit` must be redeployed from this
-branch (`public/_redirects` routes `/challenge`). Tapping the https link opens the app directly
-only after `/.well-known/assetlinks.json` with the release key is hosted.
+opens the share sheet with the card and a link
+`https://sergiocoder007.github.io/C24-Cardio/challenge/?c=<code>`. The link holds the whole
+workout (no server); `src/challenge/challenge.js` documents the format. Opening the link loads
+the exact workout (in the browser, with an "Open in the C24 Cardio app" button on Android);
+finishing it offers a **CHALLENGE COMPLETED** card (self-reported).
+
+## Website and privacy policy (GitHub Pages, free)
+
+`.github/workflows/pages.yml` builds the web app into the `gh-pages` branch on every push to
+`orange-rebuild`. With **Settings › Pages › Branch: gh-pages / (root)** it is served at
+`https://sergiocoder007.github.io/C24-Cardio/`; the privacy policy URL for the stores is
+`https://sergiocoder007.github.io/C24-Cardio/privacy-policy/`.
