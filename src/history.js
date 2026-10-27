@@ -58,9 +58,10 @@ export function isValidSession(s) {
   )
 }
 
-export function createSession({ rounds, roundDurationSec, restDurationSec, finishedAt }) {
+export function createSession({ rounds, roundDurationSec, restDurationSec, finishedAt, mode = 'sparring' }) {
   const at = new Date(finishedAt)
   return {
+    mode,
     id: `${at.getTime().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     finishedAt: at.toISOString(),
     rounds,
