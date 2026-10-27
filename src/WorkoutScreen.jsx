@@ -4,6 +4,8 @@ import { useWorkoutSounds } from './audio'
 import { formatTrainingTime, plural } from './history.js'
 import { useKeepAwake } from './keepAwake.js'
 import { useBackgroundTimer } from './native/useBackgroundTimer.js'
+import { MOVES } from './training/combos.js'
+import { useComboPlan, useTrainingVoice } from './training/useTraining.js'
 import { useWorkoutTimer } from './useWorkoutTimer'
 import { formatClock } from './workout'
 import './WorkoutScreen.css'
@@ -58,8 +60,10 @@ export function WorkoutScreen({ session, soundOn, onSoundChange, onComplete, onE
   const timer = useWorkoutTimer(session)
   // Android: the background service plays the sounds and shows the
   // lock-screen notification; otherwise the in-app engine plays them.
-  const background = useBackgroundTimer(timer, session, soundOn)
+  const combos = useComboPlan(session)
+  const background = useBackgroundTimer(timer, session, soundOn, combos.extras)
   const { needsTap } = useWorkoutSounds(timer, soundOn && !background.active)
+  const combo = useTrainingVoice(combos, timer, soundOn && !background.active)
   const running = timer.status === 'running'
   useKeepAwake(running && !timer.paused)
 
@@ -125,6 +129,22 @@ export function WorkoutScreen({ session, soundOn, onSoundChange, onComplete, onE
               <p className="round-count">
                 ROUND {Math.min(timer.round, session.rounds)} / {session.rounds}
               </p>
+              {session.training ? (
+                <p className={`combo${combo && timer.phase === 'work' ? ' is-on' : ''}`} aria-live="polite">
+                  {combo && timer.phase === 'work' ? (
+                    <span key={combo.at} className="combo-moves" aria-label={combo.text}>
+                      {combo.moves.map((id, i) => (
+                        <span key={`${id}-${i}`} className="combo-move">
+                          {i > 0 ? <span className="combo-sep" aria-hidden="true">·</span> : null}
+                          {MOVES[id].label}
+                        </span>
+                      ))}
+                    </span>
+                  ) : (
+                    <span className="combo-idle">{timer.phase === 'rest' ? 'BREATHE' : 'TRAINING'}</span>
+                  )}
+                </p>
+              ) : null}
             </section>
 
             <div className="workout-controls">

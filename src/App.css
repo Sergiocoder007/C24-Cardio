@@ -312,6 +312,70 @@
   text-decoration: none;
 }
 
+/* Mode switch and training options */
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+}
+
+.mode-option {
+  min-height: 46px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.22em;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mode-option.is-selected {
+  background: var(--orange);
+  color: var(--on-orange);
+  box-shadow: 0 0 18px var(--orange-glow);
+}
+
+.chip-row.is-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.training-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.training-card .config-title {
+  margin-bottom: 0;
+}
+
+.training-note {
+  margin: -4px 0 0 2px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+
+.training-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.training-label {
+  margin: 0 0 0 2px;
+  color: var(--orange);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
 /* ---------- Progress ---------- */
 .progress-frame {
   gap: 12px;

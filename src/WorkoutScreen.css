@@ -152,6 +152,56 @@
   padding-left: 0.26em;
 }
 
+.combo {
+  margin: 14px 0 0;
+  min-height: 3.2em;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: clamp(1.05rem, 5.4vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.25;
+  text-wrap: balance;
+  color: var(--orange);
+  transition: background 0.2s ease;
+}
+
+.combo.is-on {
+  background: rgba(255, 106, 0, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 106, 0, 0.35);
+}
+
+.combo.is-on .combo-moves {
+  animation: pop 0.25s ease both;
+}
+
+.combo-moves {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.35em;
+}
+
+/* A move never splits across lines; lines break between moves. */
+.combo-move {
+  white-space: nowrap;
+}
+
+.combo-sep {
+  margin-right: 0.35em;
+  opacity: 0.6;
+}
+
+.combo-idle {
+  color: var(--dim);
+  font-size: 0.8em;
+  letter-spacing: 0.3em;
+}
+
 .workout-controls {
   display: flex;
   flex-direction: column;
@@ -329,6 +379,20 @@
   }
   .clock {
     font-size: clamp(3.5rem, min(20vw, 42dvh), 9rem);
+  }
+  /* Training: make room for the combo line on short screens. */
+  .clock-block:has(.combo) .clock {
+    font-size: clamp(2.8rem, min(15vw, 30dvh), 7rem);
+  }
+  .clock-block:has(.combo) .phase-label,
+  .clock-block:has(.combo) .round-count {
+    font-size: clamp(0.95rem, 4.5dvh, 1.3rem);
+  }
+  .combo {
+    margin-top: 6px;
+    min-height: 0;
+    padding: 6px 12px;
+    font-size: clamp(0.9rem, 5dvh, 1.2rem);
   }
   .complete {
     grid-column: 1 / -1;

@@ -7,6 +7,7 @@ import { ProgressScreen } from './ProgressScreen'
 import { loadSettings, saveSettings } from './settings.js'
 import { SetupScreen } from './SetupScreen'
 import { DEFAULT_SETUP } from './workout'
+import { primeSpeech } from './training/voice.js'
 import { WorkoutScreen } from './WorkoutScreen'
 import './App.css'
 
@@ -80,14 +81,20 @@ function App() {
     // Must run inside the tap so iOS/Android allow audio to start.
     void unlockWorkoutAudio()
     const { rounds, roundDurationSec, restDurationSec } = settings.setup
-    setSession({ rounds, roundDurationSec, restDurationSec })
+    const t = settings.training
+    const training =
+      t.mode === 'training'
+        ? { style: t.style, level: t.level, paceSec: t.paceSec, seed: Date.now() % 2147483647 }
+        : null
+    if (training) primeSpeech()
+    setSession({ rounds, roundDurationSec, restDurationSec, training })
     setScreen('workout')
   }
 
   const completeWorkout = useCallback(
     (finishedAt) => {
       setHistory((list) => {
-        const next = [...list, createSession({ ...session, finishedAt })]
+        const next = [...list, createSession({ ...session, finishedAt, mode: session.training ? 'training' : 'sparring' })]
         saveHistory(storage, next)
         return next
       })
@@ -124,6 +131,8 @@ function App() {
     <SetupScreen
       setup={settings.setup}
       onChange={(setup) => setSettings((s) => ({ ...s, setup }))}
+      training={settings.training}
+      onTrainingChange={(training) => setSettings((s) => ({ ...s, training }))}
       stats={stats}
       onStart={startWorkout}
       onReset={() => setSettings((s) => ({ ...s, setup: { ...DEFAULT_SETUP } }))}

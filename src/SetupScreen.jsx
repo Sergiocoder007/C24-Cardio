@@ -61,6 +61,69 @@ function ConfigCard({ title, presets, value, custom, onPreset, onCustom, stepper
   )
 }
 
+const STYLE_OPTIONS = [
+  { value: 'boxing', label: 'BOXING' },
+  { value: 'muaythai', label: 'MUAY THAI' },
+  { value: 'mixed', label: 'BOTH' },
+]
+const LEVEL_OPTIONS = [
+  { value: 'beginner', label: 'BEGINNER' },
+  { value: 'intermediate', label: 'INTERMED.', aria: 'Intermediate' },
+  { value: 'advanced', label: 'ADVANCED' },
+]
+const PACE_OPTIONS = [
+  { value: 5, label: '5 SEC', aria: 'A combo every 5 seconds' },
+  { value: 8, label: '8 SEC', aria: 'A combo every 8 seconds' },
+  { value: 12, label: '12 SEC', aria: 'A combo every 12 seconds' },
+]
+
+function ModeSwitch({ mode, onChange }) {
+  return (
+    <div className="mode-switch" role="radiogroup" aria-label="Workout mode">
+      {[
+        ['sparring', 'SPARRING'],
+        ['training', 'TRAINING'],
+      ].map(([value, label]) => (
+        <button
+          key={value}
+          type="button"
+          role="radio"
+          aria-checked={mode === value}
+          className={`mode-option${mode === value ? ' is-selected' : ''}`}
+          onClick={() => onChange(value)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function TrainingCard({ training, onChange }) {
+  const set = (patch) => onChange({ ...training, ...patch })
+  const row = (title, options, key) => (
+    <div className="training-row">
+      <p className="training-label">{title}</p>
+      <div className="chip-row is-three">
+        {options.map((o) => (
+          <Chip key={o.value} selected={training[key] === o.value} label={o.aria} onSelect={() => set({ [key]: o.value })}>
+            {o.label}
+          </Chip>
+        ))}
+      </div>
+    </div>
+  )
+  return (
+    <section className="config-card training-card" aria-label="Training">
+      <h2 className="config-title">TRAINING</h2>
+      <p className="training-note">Calls out combos during each round.</p>
+      {row('STYLE', STYLE_OPTIONS, 'style')}
+      {row('LEVEL', LEVEL_OPTIONS, 'level')}
+      {row('COMBO EVERY', PACE_OPTIONS, 'paceSec')}
+    </section>
+  )
+}
+
 function StatTile({ label, totals }) {
   return (
     <div className="stat-tile">
@@ -86,7 +149,7 @@ function ResetIcon() {
   )
 }
 
-export function SetupScreen({ setup, onChange, stats, onStart, onReset, onOpenProgress }) {
+export function SetupScreen({ setup, onChange, training, onTrainingChange, stats, onStart, onReset, onOpenProgress }) {
   const { rounds, roundsCustom, roundDurationSec, roundDurationCustom, restDurationSec, restDurationCustom } = setup
   const set = (patch) => onChange({ ...setup, ...patch })
   const step = (key, delta, limits) => set({ [key]: clamp(setup[key] + delta, limits.min, limits.max) })
@@ -108,6 +171,8 @@ export function SetupScreen({ setup, onChange, stats, onStart, onReset, onOpenPr
             </button>
           </div>
         </header>
+
+        <ModeSwitch mode={training.mode} onChange={(mode) => onTrainingChange({ ...training, mode })} />
 
         <ConfigCard
           title="ROUNDS"
@@ -165,6 +230,8 @@ export function SetupScreen({ setup, onChange, stats, onStart, onReset, onOpenPr
             />
           }
         />
+
+        {training.mode === 'training' ? <TrainingCard training={training} onChange={onTrainingChange} /> : null}
 
         <section className="training" aria-label="Your training">
           <h2 className="section-kicker">YOUR TRAINING</h2>
