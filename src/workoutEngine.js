@@ -111,6 +111,7 @@ export function createWorkoutEngine(config, startAt) {
   return {
     config,
     totalWorkMs,
+    startedAt: startAt,
     get state() {
       return e
     },

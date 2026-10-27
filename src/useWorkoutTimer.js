@@ -55,27 +55,29 @@ export function useWorkoutTimer(config) {
     start()
     publish()
 
+    // Each control takes an optional timestamp so actions made from the
+    // lock-screen notification apply at the moment they were tapped.
     engine.controls = {
-      pause() {
-        if (engine.pause(Date.now())) {
+      pause(at = Date.now()) {
+        if (engine.pause(at)) {
           cancelAnimationFrame(raf)
           publish()
         }
       },
-      resume() {
-        if (engine.resume(Date.now())) {
+      resume(at = Date.now()) {
+        if (engine.resume(at)) {
           start()
           publish()
         }
       },
-      requestStop() {
-        if (engine.requestStop(Date.now())) {
+      requestStop(at = Date.now()) {
+        if (engine.requestStop(at)) {
           cancelAnimationFrame(raf)
           publish()
         }
       },
-      cancelStop() {
-        if (engine.cancelStop(Date.now())) {
+      cancelStop(at = Date.now()) {
+        if (engine.cancelStop(at)) {
           start()
           publish()
         }
@@ -100,8 +102,9 @@ export function useWorkoutTimer(config) {
   return {
     ...snapshot,
     totalWorkMs: engineRef.current?.totalWorkMs ?? 0,
-    pause: () => controls()?.pause(),
-    resume: () => controls()?.resume(),
+    startedAt: engineRef.current?.startedAt ?? 0,
+    pause: (at) => controls()?.pause(typeof at === 'number' ? at : undefined),
+    resume: (at) => controls()?.resume(typeof at === 'number' ? at : undefined),
     requestStop: () => controls()?.requestStop(),
     cancelStop: () => controls()?.cancelStop(),
     confirmEnd: () => controls()?.confirmEnd(),
