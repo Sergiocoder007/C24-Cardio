@@ -64,7 +64,7 @@ Branch `orange-rebuild` (from `main` @ cb328f2). Date: 27 Oct 2026. `main` is un
 - **Build status:** **builds in the cloud.** `.github/workflows/android-debug.yml` runs tests, lint and the production build, then builds a debug APK on GitHub Actions for every push to `orange-rebuild`.
 - **Prepared:**
   - Capacitor 8 dependencies (minSdk 24, **targetSdk 36**, which Play requires for new apps after 31 Aug 2026).
-  - `capacitor.config.json` with the published app id `com.c24cardio.app`.
+  - `capacitor.config.json` with the published app id `com.c24cardio.android`.
   - Back button handling, keep-awake plugin, bundled Oswald font, icon and splash sources in `assets/`.
   - `scripts/android-setup.sh`: creates `android/`, generates icons, sets the version and builds a debug APK.
 - **Release blockers:**
@@ -111,7 +111,7 @@ Already present, so not proposed: custom rounds, work and rest durations, sound 
 | `npm test` (35 tests: timer engine 8, history and streaks 7, end-to-end audio 10, cue rules 10) | **Passed** |
 | Legacy reproduction (original audio code, round-4 interruption) | **Bug reproduced:** 0/77 cues after the interruption |
 | JavaScript bundle (Bun) of the app | **Passed** |
-| Android debug build (GitHub Actions, run 40500159627) | **Passed**: `com.c24cardio.app` 1.1.0 (build 2), minSdk 24, targetSdk 36; APK in a private draft release |
+| Android debug build (GitHub Actions, run 40500159627) | **Passed**: `com.c24cardio.android` 1.1.0 (build 2), minSdk 24, targetSdk 36; APK in a private draft release |
 | `npm install`, `npm test`, `oxlint`, `vite build` in CI | **Passed**: lint 0 errors, 1 intentional hook-dependency warning |
 | `npm test` now (timer, plan parity, history, audio, combo scheduler) | **Passed**: 80 tests |
 | Native plugin JUnit tests (`WorkoutClockTest`) in CI | **Passed** in every Android build |
@@ -132,5 +132,5 @@ Already present, so not proposed: custom rounds, work and rest durations, sound 
 2. Install the debug APK (`adb install -r …`) and run the README device checklist.
 3. Commit the generated `android/` folder and open a pull request from `orange-rebuild` to `main`.
 4. In Android Studio: **Generate Signed App Bundle**, create and back up an upload key, then build the `.aab`.
-5. In Play Console: create the app (`com.c24cardio.app`), upload to **Internal testing**, complete Data safety ("no data collected"), content rating, store listing and a support email. For the privacy policy URL, use `https://sergiocoder007.github.io/C24-Cardio/privacy-policy/` (GitHub Pages, see README).
+5. In Play Console: create the app (`com.c24cardio.android`), upload to **Internal testing**, complete Data safety ("no data collected"), content rating, store listing and a support email. For the privacy policy URL, use `https://sergiocoder007.github.io/C24-Cardio/privacy-policy/` (GitHub Pages, see README).
 6. Promote to production after testing on at least one real device.

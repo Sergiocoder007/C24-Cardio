@@ -251,7 +251,7 @@ export function challengeUrl(c) {
 // if the app is not installed the browser goes to `fallbackUrl` instead.
 export function androidIntentUrl(payload, fallbackUrl) {
   return (
-    `intent://challenge?c=${payload}#Intent;scheme=${APP_SCHEME};package=com.c24cardio.app;` +
+    `intent://challenge?c=${payload}#Intent;scheme=${APP_SCHEME};package=com.c24cardio.android;` +
     `S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
   )
 }

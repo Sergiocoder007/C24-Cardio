@@ -30,7 +30,7 @@ npm run lint
 npm run build
 
 if [ ! -d android ]; then
-  echo "==> Creating the Android project (com.c24cardio.app)"
+  echo "==> Creating the Android project (com.c24cardio.android)"
   npx cap add android
 fi
 

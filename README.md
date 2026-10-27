@@ -61,7 +61,7 @@ First time (needs Android Studio):
 bash scripts/android-setup.sh
 ```
 
-This installs packages, runs the tests, creates `android/` (app id `com.c24cardio.app`),
+This installs packages, runs the tests, creates `android/` (app id `com.c24cardio.android`),
 generates icons and splash screens, and builds a debug APK. Commit the generated
 `android/` folder afterwards.
 

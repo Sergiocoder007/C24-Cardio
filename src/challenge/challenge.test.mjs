@@ -205,7 +205,7 @@ test('Android intent link targets the app and falls back to the web link', () =>
   const c = make()
   const payload = encodeChallenge(c)
   const intent = androidIntentUrl(payload, challengeUrl(c))
-  assert.ok(intent.startsWith(`intent://challenge?c=${payload}#Intent;scheme=c24cardio;package=com.c24cardio.app;`))
+  assert.ok(intent.startsWith(`intent://challenge?c=${payload}#Intent;scheme=c24cardio;package=com.c24cardio.android;`))
   assert.ok(intent.includes(`S.browser_fallback_url=${encodeURIComponent(challengeUrl(c))}`))
   assert.ok(intent.endsWith(';end'))
 })

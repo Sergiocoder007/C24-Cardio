@@ -1,5 +1,5 @@
 {
-  "appId": "com.c24cardio.app",
+  "appId": "com.c24cardio.android",
   "appName": "C24 Cardio",
   "webDir": "dist",
   "android": {
