@@ -1,6 +1,6 @@
 # C24 Cardio — physical-device test checklist
 
-Build under test: `c24-cardio-debug-712d615.apk` (in `~/Downloads/c24-cardio-apk/`, installed
+Build under test: `c24-cardio-debug-7e72f80.apk` (in `~/Downloads/c24-cardio-apk/`, installed
 with `bash ~/Downloads/c24-cardio-apk/install-c24.sh`). It contains the revised combo list
 (COMBOS.md) and the persistent WORKOUT COMPLETE notification.
 
