@@ -1,23 +1,23 @@
 /* C24 Challenges: reuses the Progress screen frame and setup cards, recoloured
-   blue instead of the app's orange. */
+   yellow and black instead of the app's orange. */
 .challenge,
 .challenge-entry {
-  --red: #1e6bff;
-  --red-soft: #4d8cff;
-  --blue: #1e6bff;
-  --blue-soft: #4d8cff;
+  --red: #ffd400;
+  --red-soft: #ffe14d;
+  --blue: #ffd400;
+  --blue-soft: #ffe14d;
 }
 
 .challenge {
   --orange: var(--red);
   --orange-soft: var(--red-soft);
-  --orange-line: rgba(30, 107, 255, 0.85);
-  --orange-glow: rgba(30, 107, 255, 0.38);
-  --orange-haze: rgba(30, 107, 255, 0.16);
-  --on-orange: #ffffff;
+  --orange-line: rgba(255, 212, 0, 0.85);
+  --orange-glow: rgba(255, 212, 0, 0.38);
+  --orange-haze: rgba(255, 212, 0, 0.16);
+  --on-orange: #0a0a0a;
   background:
-    radial-gradient(circle at 100% 0%, rgba(30, 107, 255, 0.16), transparent 45%),
-    radial-gradient(circle at 0% 100%, rgba(30, 107, 255, 0.16), transparent 45%),
+    radial-gradient(circle at 100% 0%, rgba(255, 212, 0, 0.16), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(255, 212, 0, 0.16), transparent 45%),
     var(--bg);
 }
 
@@ -27,7 +27,7 @@
 
 .challenge .btn-primary {
   background: linear-gradient(90deg, var(--red), var(--blue));
-  box-shadow: 0 0 28px rgba(30, 107, 255, 0.4);
+  box-shadow: 0 0 28px rgba(255, 212, 0, 0.4);
 }
 
 .challenge .btn-outline,
@@ -42,7 +42,7 @@
 .challenge .chip.is-selected {
   background: var(--red);
   border-color: var(--red);
-  color: #fff;
+  color: #0a0a0a;
 }
 
 .challenge .config-title,
@@ -147,7 +147,7 @@
   border: 1px solid transparent;
   border-radius: 999px;
   background:
-    linear-gradient(90deg, rgba(30, 107, 255, 0.14), rgba(30, 107, 255, 0.14)) padding-box,
+    linear-gradient(90deg, rgba(255, 212, 0, 0.14), rgba(255, 212, 0, 0.14)) padding-box,
     linear-gradient(var(--panel), var(--panel)) padding-box,
     linear-gradient(90deg, var(--red), var(--blue)) border-box;
   text-align: left;
@@ -158,7 +158,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(30, 107, 255, 0.55), rgba(30, 107, 255, 0.55));
+  background: linear-gradient(90deg, rgba(255, 212, 0, 0.55), rgba(255, 212, 0, 0.55));
   transition: width 0.25s ease;
   pointer-events: none;
 }
@@ -178,7 +178,7 @@
 
 .challenge-entry-icon {
   z-index: 1;
-  box-shadow: 0 0 16px rgba(30, 107, 255, 0.6);
+  box-shadow: 0 0 16px rgba(255, 212, 0, 0.6);
   display: grid;
   place-items: center;
   flex: none;
@@ -186,7 +186,7 @@
   height: 38px;
   border-radius: 50%;
   background: var(--red);
-  color: #fff;
+  color: #0a0a0a;
 }
 
 .challenge-entry-text {
