@@ -1,0 +1,10 @@
+{
+  "appId": "com.c24cardio.app",
+  "appName": "C24 Cardio",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": false,
+    "webContentsDebuggingEnabled": false
+  }
+}
