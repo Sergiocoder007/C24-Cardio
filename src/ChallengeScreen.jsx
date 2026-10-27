@@ -15,6 +15,7 @@ import {
   deadlineStatus,
   decodeChallenge,
   encodeChallenge,
+  formatDay,
   localDay,
   shareMessage,
 } from './challenge/challenge.js'
@@ -291,28 +292,40 @@ export function OpenChallengeScreen({ payload, entry, onAccept, onShareCompleted
   const onAndroidWeb = inBrowser && /Android/i.test(navigator.userAgent)
   return (
     <Frame title="CHALLENGE" onBack={onBack}>
-      <CardImage kind="challenge" challenge={c} />
-      <p className="challenge-summary">
-        {challengeTitle(c)} · {challengeDetails(c)}
-        <br />
-        <span className={status === 'expired' ? 'is-expired' : ''}>{deadlineLabel(c, today())}</span>
-      </p>
       {entry?.completedAt ? (
+        // Already done on this phone: show the completion, not the invitation.
         <>
-          <p className="challenge-note">You completed this challenge on {new Date(entry.completedAt).toLocaleDateString()}.</p>
-          <button type="button" className="btn-outline" onClick={() => onShareCompleted(entry.completedAt)}>
+          <CardImage kind="completed" challenge={c} completedAt={entry.completedAt} />
+          <p className="challenge-summary">
+            {challengeTitle(c)} · {challengeDetails(c)}
+            <br />
+            <span>CHALLENGE COMPLETED · {formatDay(localDay(entry.completedAt), { year: false })}</span>
+          </p>
+          <button type="button" className="btn-primary" onClick={() => onShareCompleted(entry.completedAt)}>
             SHARE COMPLETION CARD
           </button>
+          <button type="button" className="btn-outline" onClick={onAccept}>
+            DO IT AGAIN
+          </button>
         </>
-      ) : null}
-      {onAndroidWeb ? (
-        <a className="btn-outline challenge-link-btn" href={androidIntentUrl(payload, window.location.href)}>
-          OPEN IN THE C24 CARDIO APP
-        </a>
-      ) : null}
-      <button type="button" className="btn-primary" onClick={onAccept}>
-        {status === 'expired' ? 'DO IT ANYWAY' : 'ACCEPT THE CHALLENGE'}
-      </button>
+      ) : (
+        <>
+          <CardImage kind="challenge" challenge={c} />
+          <p className="challenge-summary">
+            {challengeTitle(c)} · {challengeDetails(c)}
+            <br />
+            <span className={status === 'expired' ? 'is-expired' : ''}>{deadlineLabel(c, today())}</span>
+          </p>
+          {onAndroidWeb ? (
+            <a className="btn-outline challenge-link-btn" href={androidIntentUrl(payload, window.location.href)}>
+              OPEN IN THE C24 CARDIO APP
+            </a>
+          ) : null}
+          <button type="button" className="btn-primary" onClick={onAccept}>
+            {status === 'expired' ? 'DO IT ANYWAY' : 'ACCEPT THE CHALLENGE'}
+          </button>
+        </>
+      )}
     </Frame>
   )
 }
