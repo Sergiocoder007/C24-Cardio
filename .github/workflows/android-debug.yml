@@ -68,6 +68,9 @@ jobs:
             --iconBackgroundColor '#050505' --iconBackgroundColorDark '#050505' \
             --splashBackgroundColor '#050505' --splashBackgroundColorDark '#050505'
 
+      - name: Sharp launch screen logo
+        run: node scripts/android-splash.mjs
+
       - name: Version
         run: |
           VERSION_NAME=$(node -p 'require("./package.json").version')

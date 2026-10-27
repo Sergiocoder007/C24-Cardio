@@ -36,7 +36,8 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: min(44vw, 200px);
+  /* Same size and spot as the Android launch screen logo (172dp). */
+  width: 172px;
   aspect-ratio: 1;
 }
 
