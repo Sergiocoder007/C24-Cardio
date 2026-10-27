@@ -61,7 +61,7 @@ Branch `orange-rebuild` (from `main` @ cb328f2). Date: 27 Oct 2026. `main` is un
 
 ## D. Android readiness
 
-- **Build status:** **not built.** The npm registry and Google's Android servers are blocked in this environment, so `npm install`, `vite build`, Oxlint and Gradle could not run here.
+- **Build status:** **builds in the cloud.** `.github/workflows/android-debug.yml` runs tests, lint and the production build, then builds a debug APK on GitHub Actions for every push to `orange-rebuild`.
 - **Prepared:**
   - Capacitor 8 dependencies (minSdk 24, **targetSdk 36**, which Play requires for new apps after 31 Aug 2026).
   - `capacitor.config.json` with the published app id `com.c24cardio.app`.
@@ -103,9 +103,8 @@ Already present, so not proposed: custom rounds, work and rest durations, sound 
 | `npm test` (35 tests: timer engine 8, history and streaks 7, end-to-end audio 10, cue rules 10) | **Passed** |
 | Legacy reproduction (original audio code, round-4 interruption) | **Bug reproduced:** 0/77 cues after the interruption |
 | JavaScript bundle (Bun) of the app | **Passed** |
-| `vite build` | **Not run** (npm blocked) |
-| `oxlint` | **Not run** (npm blocked) |
-| Android debug build | **Not run** (npm and Google Maven blocked) |
+| Android debug build (GitHub Actions, run 40500159627) | **Passed**: `com.c24cardio.app` 1.1.0 (build 2), minSdk 24, targetSdk 36; APK in a private draft release |
+| `npm install`, `npm test`, `oxlint`, `vite build` in CI | **Passed**: lint 0 errors, 1 intentional hook-dependency warning |
 | Physical iPhone / Android device | **Not run** |
 | Visual match to the App Store screenshots | Confirmed by the owner from the preview |
 

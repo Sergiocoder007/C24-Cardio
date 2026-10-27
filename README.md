@@ -31,6 +31,19 @@ npm run build    # production build in dist/
 
 ## Android
 
+### Cloud build (no Android Studio needed)
+
+Every push to `orange-rebuild` runs `.github/workflows/android-debug.yml` on GitHub
+Actions: tests, lint, production build, then a debug APK. Get it from the repo's
+**Releases** page (private draft "C24 Cardio debug build (orange-rebuild)") or from the
+run's **Artifacts** in the Actions tab. You can also start it from Actions › Android
+debug APK › Run workflow.
+
+Debug builds are signed with a throwaway key made on each run, so uninstall the
+previous debug build before installing a newer one (this clears its local history).
+
+### Local build
+
 First time (needs Android Studio):
 
 ```bash
