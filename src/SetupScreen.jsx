@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import logoUrl from './assets/brand/c24-logo.png'
 import { plural } from './history.js'
 import {
@@ -134,6 +135,86 @@ function StatTile({ label, totals }) {
   )
 }
 
+// Slide the lightning knob to the right to open C24 Challenges (a tap or
+// Enter also opens it). Vertical scrolling still works over it.
+function ChallengeSlider({ onOpen }) {
+  const knob = useRef(null)
+  const drag = useRef(null)
+  const dragged = useRef(false)
+  const [x, setX] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const xRef = useRef(0)
+  const move = (v) => {
+    xRef.current = v
+    setX(v)
+  }
+
+  const onPointerDown = (e) => {
+    const track = e.currentTarget.getBoundingClientRect()
+    const k = knob.current.getBoundingClientRect()
+    drag.current = { startX: e.clientX, max: track.right - k.right - 8 }
+    dragged.current = false
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+  }
+  const onPointerMove = (e) => {
+    const d = drag.current
+    if (!d) return
+    const dx = Math.max(0, Math.min(d.max, e.clientX - d.startX))
+    if (dx > 6) {
+      dragged.current = true
+      setDragging(true)
+    }
+    if (dragged.current) move(dx)
+  }
+  const end = (cancelled) => {
+    const d = drag.current
+    drag.current = null
+    setDragging(false)
+    if (!d || !dragged.current) return
+    if (!cancelled && xRef.current >= d.max * 0.7) {
+      move(d.max)
+      window.setTimeout(() => {
+        onOpen()
+        move(0)
+      }, 160)
+    } else move(0)
+  }
+  const onClick = () => {
+    if (dragged.current) {
+      dragged.current = false
+      return
+    }
+    onOpen()
+  }
+
+  return (
+    <button
+      type="button"
+      className={`challenge-entry${dragging ? ' is-dragging' : ''}`}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={() => end(false)}
+      onPointerCancel={() => end(true)}
+      onClick={onClick}
+      aria-label="C24 Challenges: challenge a friend"
+    >
+      <span className="challenge-entry-fill" style={{ width: `calc(${x}px + 56px)` }} aria-hidden="true" />
+      <span ref={knob} className="challenge-entry-icon" style={{ transform: `translateX(${x}px)` }} aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18">
+          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor" />
+        </svg>
+      </span>
+      <span className="challenge-entry-text" style={{ opacity: Math.max(0.15, 1 - x / 160) }}>
+        <strong>C24 CHALLENGES</strong>
+        <small>Slide to challenge a friend</small>
+      </span>
+      <span className="challenge-entry-go" aria-hidden="true">
+        ›››
+      </span>
+    </button>
+  )
+}
+
 function ResetIcon() {
   return (
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
@@ -262,20 +343,7 @@ export function SetupScreen({ setup, onChange, training, onTrainingChange, stats
           </div>
         </section>
 
-        {training.mode === 'sparring' ? (
-          <button type="button" className="challenge-entry" onClick={onCreateChallenge}>
-            <span className="challenge-entry-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="18" height="18">
-                <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor" />
-              </svg>
-            </span>
-            <span className="challenge-entry-text">
-              <strong>C24 CHALLENGES</strong>
-              <small>Challenge a friend</small>
-            </span>
-            <span className="challenge-entry-go" aria-hidden="true">›</span>
-          </button>
-        ) : null}
+        {training.mode === 'sparring' ? <ChallengeSlider onOpen={onCreateChallenge} /> : null}
         <button type="button" className="btn-primary start-btn" onClick={onStart}>
           START WORKOUT <span aria-hidden="true">›</span>
         </button>
