@@ -235,11 +235,9 @@ export function SetupScreen({ setup, onChange, training, onTrainingChange, stats
 
         <section className="training" aria-label="Your training">
           <h2 className="section-kicker">YOUR TRAINING</h2>
-          <div className="stat-grid">
+          {/* Week, month and year totals live on the Progress screen. */}
+          <div className="stat-grid is-single">
             <StatTile label="TODAY" totals={stats.totals.today} />
-            <StatTile label="THIS WEEK" totals={stats.totals.week} />
-            <StatTile label="THIS MONTH" totals={stats.totals.month} />
-            <StatTile label="THIS YEAR" totals={stats.totals.year} />
           </div>
           {stats.bestDay > 0 ? <p className="best-day">BEST DAY · {plural(stats.bestDay, 'ROUND')}</p> : null}
 
@@ -264,9 +262,20 @@ export function SetupScreen({ setup, onChange, training, onTrainingChange, stats
           </div>
         </section>
 
-        <button type="button" className="btn-outline challenge-entry" onClick={onCreateChallenge}>
-          C24 CHALLENGES · CREATE A CHALLENGE <span aria-hidden="true">›</span>
-        </button>
+        {training.mode === 'sparring' ? (
+          <button type="button" className="challenge-entry" onClick={onCreateChallenge}>
+            <span className="challenge-entry-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18">
+                <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor" />
+              </svg>
+            </span>
+            <span className="challenge-entry-text">
+              <strong>C24 CHALLENGES</strong>
+              <small>Challenge a friend</small>
+            </span>
+            <span className="challenge-entry-go" aria-hidden="true">›</span>
+          </button>
+        ) : null}
         <button type="button" className="btn-primary start-btn" onClick={onStart}>
           START WORKOUT <span aria-hidden="true">›</span>
         </button>
