@@ -8,7 +8,7 @@ name: Android release bundle (Play Store)
 on:
   workflow_dispatch:
   push:
-    tags: ['play-v*'] # e.g. git tag play-v1.1.0-1 && git push origin play-v1.1.0-1
+    branches: [orange-rebuild] # only commits whose message contains [play-release]
 
 permissions:
   contents: write # private draft release with the .aab
